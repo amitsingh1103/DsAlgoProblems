@@ -1,22 +1,10 @@
 package com.aks.dsandalgo;
 
-import org.junit.Before;
-import org.junit.Test;
+import junit.framework.TestCase;
 
 /**
- * Unit test for ArraysExample.
+ * Created by singhami on 6/8/2017.
  */
-public class ArraysExampleTest {
+public class ArraysExampleTest extends TestCase {
 
-    private ArraysExample arraysExample;
-
-    @Before
-    public void setUp() throws Exception {
-        arraysExample = new ArraysExample();
-    }
-
-    @Test
-    public void testHello() {
-        arraysExample.print();
-    }
 }

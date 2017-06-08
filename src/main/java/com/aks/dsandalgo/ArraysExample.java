@@ -1,11 +1,7 @@
 package com.aks.dsandalgo;
 
 /**
- * Arrays: Data structure to store same type of data in contiguous locations. Array size must be defined at
- * the time of declaration.
+ * Created by singhami on 6/8/2017.
  */
 public class ArraysExample {
-    public void print() {
-        System.out.println("hi");
-    }
 }
