@@ -11,6 +11,28 @@ import java.util.Map;
 public class ArraysExample {
 
     /**
+     * Problem 8: Search an element in a sorted and rotated array. Elements are unique.
+     * Solution: Find the pivot element. Then find key in the subarray.
+     */
+    
+
+    /**
+     * Problem 7: You are given a list of n-1 integers and these integers are in the range of 1 to n. There are no
+     * duplicates in list. One of the integers is missing in the list. Write an efficient code to find the missing
+     * integer.
+     * Solution: Calculate the sum of n numbers and then subtract this with the sum of elements.
+     */
+    public void findMissingNumber(int[] arr, int n) {
+        int sumN = (n * (n + 1)) / 2;
+        int sumArr = 0;
+        for (int i = 0; i < arr.length; i++) {
+            sumArr += arr[i];
+        }
+
+        System.out.println("Missing element: " + (sumN - sumArr));
+    }
+
+    /**
      * Problem 6: Find the sum of contiguous subarray within a one-dimensional array of numbers which has the
      * largest sum. Also print positions.
      * Solution 1: Kadane's Algorithm-> Taking current maximum and maximum so far.
@@ -19,12 +41,13 @@ public class ArraysExample {
         int currentMax = arr[0];
         int maxSoFar = arr[0];
         int low = 0;
+        int lowTemp = 0;
         int high = 0;
 
         for (int i = 1; i < arr.length; i++) {
             if (arr[i] > (currentMax + arr[i])) {
                 currentMax = arr[i];
-                low = i;
+                lowTemp = i;
             } else {
                 currentMax += arr[i];
             }
@@ -32,6 +55,7 @@ public class ArraysExample {
             if (currentMax > maxSoFar) {
                 maxSoFar = currentMax;
                 high = i;
+                low = lowTemp;
             }
         }
 
