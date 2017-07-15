@@ -11,10 +11,202 @@ import java.util.Map;
 public class ArraysExample {
 
     /**
+     * Problem 11: There are 2 sorted arrays A and B of size n each. Write an algorithm to find the median of the
+     * array obtained after merging the above 2 arrays(i.e. array of length 2n). The complexity should be O(log(n))
+     *
+     *
+     * Median: In probability theory and statistics, a median is described as the number separating the higher half of
+     * a sample, a population, or a probability distribution, from the lower half.
+     * The median of a finite list of numbers can be found by arranging all the numbers from lowest value to highest
+     * value and picking the middle one.
+     *
+     * For getting the median of input array { 12, 11, 15, 10, 20 }, first sort the array.
+     * We get { 10, 11, 12, 15, 20 } after sorting. Median is the middle element of the sorted array which is 12.
+     *
+     * There are different conventions to take median of an array with even number of elements, one can take
+     * the mean of the two middle values, or first middle value, or second middle value.
+     *
+     * Solution 1: Merging the two sorted arrays and taking the mean middle two elements.Time complexity O(n).
+     * Solution 2: By comparing median of two sub-arrays.
+     * 1) Calculate the medians m1 and m2 of the input arrays ar1[]
+     * and ar2[] respectively.
+     2) If m1 and m2 both are equal then we are done.
+     return m1 (or m2)
+     3) If m1 is greater than m2, then median is present in one
+     of the below two subarrays.
+     a)  From first element of ar1 to m1 (ar1[0...|_n/2_|])
+     b)  From m2 to last element of ar2  (ar2[|_n/2_|...n-1])
+     4) If m2 is greater than m1, then median is present in one
+     of the below two subarrays.
+     a)  From m1 to last element of ar1  (ar1[|_n/2_|...n-1])
+     b)  From first element of ar2 to m2 (ar2[0...|_n/2_|])
+     5) Repeat the above process until size of both the subarrays
+     becomes 2.
+     6) If size of the two arrays is 2 then use below formula to get
+     the median.
+     Median = (max(ar1[0], ar2[0]) + min(ar1[1], ar2[1]))/2and ar2[] respectively.
+     */
+    public int findMedianOfTwoSortedArrays(int[] ar1, int[] ar2) {
+        if (ar1.length != ar2.length) {
+            throw new IllegalArgumentException("Array length must be same");
+        }
+
+        return getMedian(ar1, ar2, 0, ar1.length - 1, 0, ar2.length - 1, ar1.length);
+    }
+
+    private int getMedian(int[] ar1, int[] ar2, int low1, int high1, int low2, int high2, int length) {
+        if (length <= 0) {
+            return -1;
+        }
+
+        if (length == 1) {
+            return (ar1[low1] + ar2[low2]) / 2;
+        }
+
+        if (length == 2) {
+            return (Math.max(ar1[low1], ar2[low2]) + Math.min(ar1[high1], ar2[high2])) / 2;
+        }
+
+        // calculate median.
+        int m1 = median(ar1, length, low1);
+        int m2 = median(ar2, length, low2);
+
+        if (m1 == m2) {
+            return m1;
+        }
+
+        if (m1 < m2) {
+            return getMedian(ar1, ar2, (length / 2), length - 1, 0, (length / 2), (length - length / 2));
+        }
+
+        return getMedian(ar1, ar2, 0, (length / 2), (length / 2), length - 1, (length - length / 2));
+    }
+
+    private int median(int[] ar, int n, int low) {
+        if (n % 2 == 0) {
+            return (ar[low + (n/2 - 1)] + ar[low + n/2]) / 2;
+        }
+        return ar[low + n/2];
+    }
+
+
+    /**
+     * Problem 10: Write a program to reverse an array or string
+     * Time Complexity: O(n)
+     */
+    public void reverseArray(int[] arr) {
+        int low = 0;
+        int high = arr.length - 1;
+        while (low < high) {
+            int temp = arr[low];
+            arr[low] = arr[high];
+            arr[high] = temp;
+            low++;
+            high--;
+        }
+
+        for (int e : arr) {
+            System.out.print(e + ", ");
+        }
+    }
+
+    /**
+     * Problem 9: There are two sorted arrays. First one is of size m+n containing only m elements.
+     * Another one is of size n and contains n elements. Merge these two arrays into the first array of
+     * size m+n such that the output is sorted.
+     * Solution: Merge arrays as in merge algorithm. Shift elements of mPlusN to right and then compare each array
+     * element by element using two counters.
+     *
+     * Time Complexity: O(n)
+     */
+    public void mergeTwoSortedArrays(int[] mPlusN, int[] N) {
+        // shift the elements in mPlusN to right.
+        int j = mPlusN.length - 1;
+        int i;
+        for (i = mPlusN.length - 1; i >= 0; i--) {
+            if (mPlusN[i] != -1) {
+                mPlusN[j] = mPlusN[i];
+                j--;
+            }
+        }
+
+        // Merge two arrays.
+        // reuse counters i, j
+        i = N.length;
+        j = 0;
+        int p = 0;
+        while (i < mPlusN.length && j < N.length) {
+            if (N[j] < mPlusN[i]) {
+                mPlusN[p] = N[j];
+                j++;
+            } else {
+                mPlusN[p] = mPlusN[i];
+                i++;
+            }
+            p++;
+        }
+
+        if (j < N.length) {
+            // reuse counter i
+            for (i = j; i < N.length; i++, p++) {
+                mPlusN[p] = N[i];
+            }
+        }
+
+        // reuse counter i
+        for (i = 0; i < mPlusN.length; i++) {
+            System.out.print(mPlusN[i] + ", ");
+        }
+    }
+
+    /**
      * Problem 8: Search an element in a sorted and rotated array. Elements are unique.
      * Solution: Find the pivot element. Then find key in the subarray.
      */
-    
+    public int searchElementInRotatedArray(int[] arr, int key) {
+        // Get the pivot element.
+        int pivot = findPivot(arr, 0, arr.length - 1);
+        if (pivot == -1) {
+            return -1;
+        }
+
+        if (key == arr[pivot]) {
+            return pivot;
+        }
+
+        if (key >= arr[0]) {
+            return binarySearchOfArray(arr, 0, pivot - 1, key);
+        }
+
+        return binarySearchOfArray(arr, pivot + 1, arr.length - 1, key);
+    }
+
+    // Given list in sorted in non-decreasing order
+    private int findPivot(int[] arr, int low, int high) {
+        if (low > high) {
+            return -1;
+        }
+
+        if (low == high) {
+            return low;
+        }
+
+        int mid = (low + high) / 2;
+        if (mid > low && arr[mid] < arr[mid - 1]) {
+            return mid - 1;
+        }
+
+        if (mid < high && arr[mid] > arr[mid + 1]) {
+            return mid;
+        }
+
+        if (arr[low] > arr[mid]) {
+            return findPivot(arr, low, mid - 1);
+        }
+
+        return findPivot(arr, mid + 1, high);
+    }
+
 
     /**
      * Problem 7: You are given a list of n-1 integers and these integers are in the range of 1 to n. There are no
@@ -146,7 +338,6 @@ public class ArraysExample {
             itr.remove();
         }
     }
-
 
     /**
      * Problem 2: Insert, Delete and Search in sorted array
