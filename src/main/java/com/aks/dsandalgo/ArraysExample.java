@@ -1,14 +1,204 @@
 package com.aks.dsandalgo;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by singhami on 6/8/2017.
  */
 public class ArraysExample {
+
+    /* Problem 18: Inversion Count for an array indicates – how far (or close) the array is from being sorted. If array
+    is already sorted then inversion count is 0. If array is sorted in reverse order that inversion count is the maximum.
+    Formally speaking, two elements a[i] and a[j] form an inversion if a[i] > a[j] and i < j
+
+    Solution: Use modified merge sort.
+    */
+    public int calculateInversionCount(int[] arr) {
+        int[] temp = Arrays.copyOf(arr, arr.length);
+        return _calculateInversionCountByMergeSort(arr, temp, 0, arr.length - 1);
+    }
+
+    private int _calculateInversionCountByMergeSort(int[] arr, int[] temp, int low, int high) {
+        int inversionCount = 0;
+        if (low >= high) {
+            return inversionCount;
+        }
+
+        int mid = (low + high) / 2;
+        inversionCount = _calculateInversionCountByMergeSort(arr, temp, low, mid);
+        inversionCount += _calculateInversionCountByMergeSort(arr, temp, mid + 1, high);
+
+        return inversionCount + merge(arr, temp, low, mid + 1, high);
+    }
+
+    private int merge(int[] arr, int[] temp, int low, int mid, int high) {
+        int invCount = 0;
+        int i = low;
+        int j = mid;
+        int p = low;
+        while (i <= mid - 1 && j <= high) {
+            if (arr[i] <= arr[j]) {
+                temp[p++] = arr[i++];
+            } else {
+                temp[p++] = arr[j++];
+                invCount += (mid - i); // add invCount for all the elements that fall in right side. since arr is
+                // sorted.
+            }
+        }
+
+        if (i <= mid - 1) {
+            while (i <= mid - 1) {
+                temp[p++] = arr[i++];
+            }
+        }
+
+        if (j <= high) {
+            while (j <= high) {
+                temp[p++] = arr[j++];
+            }
+        }
+
+        for (int n = low; n <= high; n++) {
+            arr[n] = temp[n];
+        }
+
+        return invCount;
+    }
+
+
+    /* Problem 17: find smallest and second smallest element in an array.
+    Solution: Maintain two variables for smallest and second to samllest in single traversal.
+    */
+    public void smallestAndSecondSmallestEle(int[] arr) {
+        int smallest = 99999;
+        int secondSmallest = 99999;
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] < smallest) {
+                smallest = arr[i];
+            }
+            if (arr[i] < secondSmallest && arr[i] != smallest) {
+                secondSmallest = arr[i];
+            }
+        }
+
+        System.out.println("Smallest: " + smallest + " SecondSmallest: " + secondSmallest);
+    }
+
+    /* Problem 16: An Array of integers is given, both +ve and -ve. You need to find the two elements such that their
+    sum is closest to zero.
+
+    Solution: Sort the array. Maintain two pointers: left and right. Maintain abs minimum_sum, if negative shift left
+    if positive shift right pointers.
+    */
+    public void sumClosestToZero(List<Integer> integerList) {
+        List<Integer> sortedList = integerList.stream().sorted().collect(Collectors.toList());
+        int l = 0;
+        int r = sortedList.size() - 1;
+        int min_sum = 99999;
+        int min_l = l;
+        int min_r = r;
+        while (l < r) {
+            int sum = sortedList.get(l) + sortedList.get(r);
+            if (Math.abs(sum) < min_sum) {
+                min_sum = Math.abs(sum);
+                min_l = l;
+                min_r = r;
+            }
+            if (sum < 0) {
+                l++;
+            } else {
+                r--;
+            }
+        }
+
+        System.out.println("Sum: " + min_sum + " min_l: " + sortedList.get(min_l) + " min_r: " + sortedList.get
+                (min_r));
+    }
+
+    /* Problem 15: Print the elements of an array in the decreasing frequency if 2 numbers have same frequency then print
+    the one which came first.
+
+    Soution: Maintain the count of occurence in a map keyed by element and then sort by count.
+    */
+    public List<Integer> sortByFrequency(List<Integer> integerList) {
+        Map<Integer, Integer> countMap = new HashMap<>();
+        for (Integer e : integerList) {
+            if(Objects.nonNull(countMap.putIfAbsent(e, 1))) {
+                countMap.put(e, countMap.get(e) + 1);
+            }
+        }
+
+        List<Integer> sortedListByFreq = new ArrayList<>();
+        countMap.entrySet().stream().sorted((o1, o2) -> {
+            if (o1.getValue().equals(o2.getValue())) {
+                return integerList.indexOf(o1.getKey()) < integerList.indexOf(o2.getKey()) ? -1 : 1;
+            }
+            return o2.getValue().compareTo(o1.getValue());
+        }).forEach(a -> {
+                    for (int i = 0; i < a.getValue(); i++) {
+                        sortedListByFreq.add(a.getKey());
+                    } });
+        return sortedListByFreq;
+    }
+
+
+    /* Problem 14: Write a program to print all the LEADERS in the array. An element is leader if it is greater than all
+    the elements to its right side. And the rightmost element is always a leader. For example int the array {16, 17,
+            4, 3, 5, 2}, leaders are 17, 5 and 2.
+
+    Solution: Traverse from right and compare with current leader to get all the leaders of the array.
+    */
+    public void getLeaders(int[] arr) {
+        int prevLeader = -99999;
+        for (int i = arr.length - 1; i > -1; i--) {
+            if (arr[i] > prevLeader) {
+                System.out.print(arr[i] + ", ");
+                prevLeader = arr[i];
+            }
+        }
+    }
+
+    /* Problem 13: Given an array of positive numbers, find the maximum sum of a subsequence with the constraint that
+    no 2 numbers in the sequence should be adjacent in the array. So 3 2 7 10 should return 13 (sum of 3 and 10)
+    or 3 2 5 10 7 should return 15 (sum of 3, 5 and 7). Answer the question in most efficient way.
+
+    Solution: Take two variables: incl[inclusive sum of current element is curr + excl of previous element] and
+    excl[exclusive sum of two elements is max of prev incl and prev excl]. At the end take max of incl and excl.
+    */
+    public int maxSumOfNonAdjacentEle(int[] arr) {
+        int incl = 0;
+        int excl = 0;
+        for (int i = 0; i < arr.length; i++) {
+            int inclSumWithCurr = arr[i] + excl;
+            excl = Math.max(incl, excl);
+            incl = inclSumWithCurr;
+        }
+
+        return Math.max(incl,excl);
+    }
+
+    /* Problem 12: Write a function rotate(ar[], d, n) that rotates arr[] of size n by d elements.
+
+    Solution: Reverse the array. Then reverse the array from k + 1 to length.
+    */
+    public void rotateArray(int[] arr, int k) {
+        reverseArrayFromTo(arr, 0, k - 1);
+        reverseArrayFromTo(arr, k, arr.length - 1);
+        reverseArrayFromTo(arr, 0, arr.length - 1);
+    }
+
+    private void reverseArrayFromTo(int[] arr, int from, int to) {
+        int i = from;
+        int j = to;
+        while (i < j) {
+            int temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+            i++;
+            j--;
+        }
+    }
 
     /**
      * Problem 11: There are 2 sorted arrays A and B of size n each. Write an algorithm to find the median of the
