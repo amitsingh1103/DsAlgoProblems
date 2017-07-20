@@ -8,6 +8,23 @@ import java.util.stream.Collectors;
  */
 public class ArraysExample {
 
+    /* Problem 19: Program to cyclically rotate an array by one
+    Solution: Since it is fixed. We can shift the array elements bby 1 after storing the last element and then
+    put it on the first index.
+    */
+    public void rotateArrayByOne(int[] arr) {
+        int lastEle = arr[arr.length - 1];
+        for (int i = arr.length - 2; i >= 0; i--) {
+            arr[i + 1] = arr[i];
+        }
+
+        arr[0] = lastEle;
+        // print
+        for (int e : arr) {
+            System.out.print(e + ", ");
+        }
+    }
+
     /* Problem 18: Inversion Count for an array indicates – how far (or close) the array is from being sorted. If array
     is already sorted then inversion count is 0. If array is sorted in reverse order that inversion count is the maximum.
     Formally speaking, two elements a[i] and a[j] form an inversion if a[i] > a[j] and i < j

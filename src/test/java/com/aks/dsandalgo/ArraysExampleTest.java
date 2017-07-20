@@ -123,4 +123,10 @@ public class ArraysExampleTest {
         int[] arr = new int[]{1, 20, 6, 4, 5};
         System.out.println(arraysExample.calculateInversionCount(arr));
     }
+
+    @Test
+    public void rotateArrayByOne() {
+        int[] arr = new int[]{1, 20, 6, 4, 5};
+        arraysExample.rotateArrayByOne(arr);
+    }
 }
