@@ -8,6 +8,74 @@ import java.util.stream.Collectors;
  */
 public class ArraysExample {
 
+    /**
+     * Problem 21: Maximum sum of i*arr[i] among all rotations of a given array.
+     *
+     * Solution: The next value for rotation = current_sum(i*arr[i]) + (arr[i-1] * n-1)[first value was multiplied with
+     * the highest index since the array is rotated by 1] - (sum_of_all_elements - arr[i-1])[multiplier of every
+     * element will be decreased by 1, simply means one copy of element is not included in the current_sum except the
+     * first element, since it was not included in the current sum at all]
+     */
+    public int findMaxSumAmongAllRotationsOfArray(int[] arr) {
+        int size = arr.length;
+        int arr_sum = 0;
+        int curr_val = 0;
+
+        for (int i = 0; i < size; i++) {
+            arr_sum += arr[i];
+        }
+
+        for (int i = 0; i < size; i++) {
+            curr_val += i * arr[i];
+        }
+
+        int res = curr_val;
+        for (int i = 1; i < size; i++) {
+            int next_val = curr_val + (arr[i - 1] * (size - 1)) - (arr_sum - arr[i - 1]);
+            curr_val = next_val;
+            res = Math.max(res, next_val);
+        }
+
+        return res;
+    }
+
+    /**
+     * Problem 20: Given an array that is sorted and then rotated around an unknown point. Find if array has a pair
+     * with given sum ‘x’. It may be assumed that all elements in array are distinct.
+     * Solution: Find pivot and set the counters for max and min. Iterate with modulus airthmetic(rotate if counter
+     * reached to max).
+     */
+    public void findPairWithGivenSumInSortedAndRotatedArray(int[] arr, int x) {
+        int size = arr.length;
+        int maxEleIndex = findPivot(arr, 0, size - 1);
+        if (maxEleIndex == size - 1) {
+            System.out.println("Not rotated. Exit");
+            return;
+        }
+        if (maxEleIndex == 0 && size == 1) {
+            System.out.println("Singleton array. Exit");
+            return;
+        }
+        int minEleIndex = maxEleIndex + 1;
+
+        int low = minEleIndex;
+        int high = maxEleIndex;
+        while (low != high) {
+            int sum = arr[low] + arr[high];
+            if (sum == x) {
+                System.out.println("Pair[" + low + "," + high + "] Ele[" + arr[low] + "," + arr[high] + "]");
+                return;
+            }
+            if (sum < x) {
+                low = (low + 1) % size;
+            }
+            if (sum > x) {
+                high = (size + high - 1) % size;
+            }
+        }
+        System.out.println("No pair exist.");
+    }
+
     /* Problem 19: Program to cyclically rotate an array by one
     Solution: Since it is fixed. We can shift the array elements bby 1 after storing the last element and then
     put it on the first index.

@@ -129,4 +129,16 @@ public class ArraysExampleTest {
         int[] arr = new int[]{1, 20, 6, 4, 5};
         arraysExample.rotateArrayByOne(arr);
     }
+
+    @Test
+    public void findPairWithGivenSumInSortedAndRotatedArray() {
+        int[] arr = new int[]{11, 15, 6, 8, 9, 10};
+        arraysExample.findPairWithGivenSumInSortedAndRotatedArray(arr, 16);
+    }
+
+    @Test
+    public void findMaxSumAmongAllRotationsOfArray() {
+        int[] arr = new int[]{8, 3, 1, 2};
+        System.out.println("Max sum: " + arraysExample.findMaxSumAmongAllRotationsOfArray(arr));
+    }
 }
