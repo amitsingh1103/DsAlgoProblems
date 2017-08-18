@@ -16,7 +16,11 @@ public class ArraysTest {
         for (int i = 0; i < res.length; i++) {
             System.out.print(res[i]);
         }
+    }
 
+    @Test
+    public void getRowInPasclaTriangle() {
+        arraysList.getRowInPascalTrianlgle(30);
     }
 
 }

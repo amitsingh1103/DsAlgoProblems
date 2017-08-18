@@ -1,5 +1,6 @@
 package com.leetcode.dsandalgo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,4 +37,22 @@ public class ArraysList {
         }
         return digits;
     }
+
+    /*Given an index k, return the kth row of the Pascal's triangle.
+      For example, given k = 3, return [1,3,3,1].
+      Solution: C(line, i) = C(line, i-1) * [(line - i + 1) / i]
+    */
+    public List<Long> getRowInPascalTrianlgle(int row) {
+        List<Long> result = new ArrayList<>();
+        Long binCoeffVal = Long.valueOf(1);
+        for (int i = 1; i <= row+1; i++) {
+            result.add(binCoeffVal);
+            binCoeffVal = (binCoeffVal * (row - (i - 1))) / i;
+        }
+
+        return result;
+    }
+
+
+
 }
