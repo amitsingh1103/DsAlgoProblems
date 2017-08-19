@@ -23,4 +23,12 @@ public class ArraysTest {
         arraysList.getRowInPascalTrianlgle(30);
     }
 
+    @Test
+    public void twoSum() {
+        int[] arr = new int[]{2, 3, 4};
+        int[] ret = arraysList.twoSum(arr, 6);
+        for (int i = 0; i < ret.length; i++) {
+            System.out.println(ret[i]);
+        }
+    }
 }
