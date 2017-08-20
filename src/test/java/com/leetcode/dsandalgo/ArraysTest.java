@@ -20,7 +20,7 @@ public class ArraysTest {
 
     @Test
     public void getRowInPasclaTriangle() {
-        arraysList.getRowInPascalTrianlgle(30);
+        arraysList.getRowInPascalTriangle(30);
     }
 
     @Test
@@ -30,5 +30,11 @@ public class ArraysTest {
         for (int i = 0; i < ret.length; i++) {
             System.out.println(ret[i]);
         }
+    }
+
+    @Test
+    public void maximumProduct() {
+        int[] arr = new int[]{-4,-3,-2,-1,60};
+        System.out.println(arraysList.maximumProduct(arr));
     }
 }
