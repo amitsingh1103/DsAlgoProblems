@@ -254,4 +254,249 @@ public class ArraysList {
 
         return uniqueCount;
     }
+
+    /**
+     * Problem 10: Given an array of integers that is already sorted in ascending order, find two numbers such that they
+     * add up to a specific target number.
+       The function twoSum should return indices of the two numbers such that they add up to the target, where index1
+       must be less than index2. Please note that your returned answers (both index1 and index2) are not zero-based.
+       You may assume that each input would have exactly one solution and you may not use the same element twice.
+
+       Solution: Maintain two counters low and high and search for the sum.
+     */
+    public int[] twoSumSorted(int[] nums, int target) {
+        int low = 0;
+        int high = nums.length - 1;
+
+        int[] ret = new int[2];
+        while (low < high) {
+            int sum = nums[low] + nums[high];
+            if (sum == target) {
+                ret[0] = low + 1;
+                ret[1] = high + 1;
+                break;
+            } else if (sum < target) {
+                low++;
+            } else {
+                high--;
+            }
+        }
+
+        return ret;
+    }
+
+    /**
+     * Problem 11: Given an array and a value, remove all instances of that value in place and return the new length.
+       Do not allocate extra space for another array, you must do this in place with constant memory.
+       The order of elements can be changed. It doesn't matter what you leave beyond the new length.
+
+       Solution: Get the index for the first time and start shifting from the next element. Whenever the element to be
+     removed will come just skip the element without doing anything.
+     */
+    public int removeElement(int[] nums, int val) {
+        int newIndex = nums.length;
+        boolean elementToBeRemovedAlreadyFound = false;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] == val && !elementToBeRemovedAlreadyFound) {
+                elementToBeRemovedAlreadyFound = true;
+                newIndex = i;
+            }
+
+            if (nums[i] != val && elementToBeRemovedAlreadyFound) {
+                nums[newIndex++] = nums[i];
+            }
+        }
+
+        return newIndex;
+    }
+
+    /**
+     * Problem 12: Given an integer array, you need to find one continuous subarray that if you only sort this subarray
+     * in ascending order, then the whole array will be sorted in ascending order, too.
+     * You need to find the shortest such subarray and output its length.
+     *
+     * Solution:
+     1) Find the candidate unsorted subarray
+     a) Scan from left to right and find the first element which is greater than the next element. Let s be the index
+     of such an element. In the above example 1, s is 3 (index of 30).
+     b) Scan from right to left and find the first element (first in right to left order) which is smaller than the
+     next element (next in right to left order). Let e be the index of such an element. In the above example 1, e is 7
+     (index of 31).
+
+     2) Check whether sorting the candidate unsorted subarray makes the complete array sorted or not. If not, then
+     include more elements in the subarray.
+     a) Find the minimum and maximum values in arr[s..e]. Let minimum and maximum values be min and max. min and max
+     for [30, 25, 40, 32, 31] are 25 and 40 respectively.
+     b) Find the first element (if there is any) in arr[0..s-1] which is greater than min, change s to index of this
+     element. There is no such element in above example 1.
+     c) Find the last element (if there is any) in arr[e+1..n-1] which is smaller than max, change e to index of this
+     element. In the above example 1, e is changed to 8 (index of 35)
+
+     3) Print s and e.
+     */
+    public int findShortestUnsortedContiguousSubArray(int[] nums) {
+        int start = 0;
+        int end = 0;
+        int length = nums.length;
+        for (int i = 0; i < length - 1; i++) {
+            if (nums[i] > nums[i + 1]) {
+                start = i;
+                break;
+            }
+        }
+
+        for (int i = length - 1; i > 0; i--) {
+            if (nums[i] < nums[i - 1]) {
+                end = i;
+                break;
+            }
+        }
+
+        //get the maximum and minimum value.
+        int maxVal = Integer.MIN_VALUE;
+        int minVal = Integer.MAX_VALUE;
+        for (int i = start; i <= end; i++) {
+            if (nums[i] > maxVal) {
+                maxVal = nums[i];
+            }
+
+            if (nums[i] < minVal) {
+                minVal = nums[i];
+            }
+        }
+
+        // Get the actual start and end index.
+        for (int i = 0; i < start; i++) {
+            if (nums[i] > minVal) {
+                start = i;
+                break;
+            }
+        }
+
+        for (int i = length - 1; i > end; i--) {
+            if (nums[i] < maxVal) {
+                end = i;
+                break;
+            }
+        }
+
+        if (end == 0 && start == 0) {
+            return 0;
+        }
+        return end - start + 1;
+    }
+
+    /**
+     * Problem 13: In MATLAB, there is a very useful function called 'reshape', which can reshape a matrix into a new
+     * one with different size but keep its original data.
+     * You're given a matrix represented by a two-dimensional array, and two positive integers r and c representing the
+     * row number and column number of the wanted reshaped matrix, respectively.
+     * The reshaped matrix need to be filled with all the elements of the original matrix in the same row-traversing
+     * order as they were
+     * If the 'reshape' operation with given parameters is possible and legal, output the new reshaped matrix;
+     * Otherwise, output the original matrix.
+     *
+     * Solution: Check if resize possible; R*C == r*c, if yes store all elements in an array row-wise and then
+     * iterate over the resultant array and insert the array values.
+     */
+    public int[][] matrixReshape(int[][] nums, int r, int c) {
+        if ((nums.length * nums[0].length) != (r * c)) {
+            return nums;
+        }
+
+        int[][] ret = new int[r][c];
+        int[] rowWiseArray = new int[r * c];
+        int i = 0;
+        for (int row = 0; row < nums.length; row++) {
+            for (int col = 0; col < nums[0].length; col++) {
+                rowWiseArray[i++] = nums[row][col];
+            }
+        }
+
+        int j = 0;
+        for (int row = 0; row < r; row++) {
+            for (int col = 0; col < c; col++) {
+                ret[row][col] = rowWiseArray[j++];
+            }
+        }
+
+        return ret;
+    }
+
+    /**
+     * Problem 14: Given a sorted array and a target value, return the index if the target is found. If not, return the
+     * index where it would be if it were inserted in order.
+     * You may assume no duplicates in the array.
+     *
+     * Solution: Apply binary search algorithm with the condition if low < high then low.
+     */
+    public int searchInsert(int[] nums, int target) {
+        return binarySearchInsert(nums, 0, nums.length - 1, target);
+    }
+
+    private int binarySearchInsert(int[] nums, int low, int high, int key) {
+        if (high < low) {
+            return low;
+        }
+
+        int mid = (high + low) / 2;
+
+        if (nums[mid] == key) {
+            return mid;
+        }
+
+        if (key < nums[mid]) {
+            return binarySearchInsert(nums, low, mid - 1, key);
+        }
+        return binarySearchInsert(nums, mid + 1, high, key);
+    }
+
+    /**
+     * Problem 15: Given two sorted integer arrays nums1 and nums2, merge nums2 into nums1 as one sorted array.
+     * Note:
+     * You may assume that nums1 has enough space (size that is greater or equal to m + n) to hold additional elements
+     * from nums2. The number of elements initialized in nums1 and nums2 are m and n respectively.
+     *
+     * Solution: Remember here if nums1 is initialized by n then first n elements will have value and non-initialized
+     * elements will have 0. Shift all the elements from numsLength to n. Then compare each element of nums1 and nums2
+     * as in merge sort.
+     */
+    public void merge(int[] nums1, int m, int[] nums2, int n) {
+        int nums1Size = nums1.length;
+
+        int k = m - 1;
+        for (int i = nums1Size - 1; i >= n; i--) {
+            nums1[i] = nums1[k];
+            k--;
+        }
+
+        int i = n;
+        int j = 0;
+        int p = 0;
+        while (i < nums1Size && j < n) {
+            if (nums1[i] <= nums2[j]) {
+                nums1[p] = nums1[i];
+                i++;
+                p++;
+            } else {
+                nums1[p] = nums2[j];
+                j++;
+                p++;
+            }
+        }
+
+        if (i < nums1Size) {
+            for (int q = i; q < nums1Size; q++) {
+                nums1[p] = nums1[q];
+                p++;
+            }
+        }
+
+        if (j < n) {
+            for (int q = j; q < n; q++) {
+                nums1[p] = nums2[q];
+                p++;
+            }
+        }
+    }
 }
