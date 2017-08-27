@@ -499,4 +499,39 @@ public class ArraysList {
             }
         }
     }
+
+    /**
+     * Problem 16: Given a 2D integer matrix M representing the gray scale of an image, you need to design a smoother
+     * to make the gray scale of each cell becomes the average gray scale (rounding down) of all the 8 surrounding
+     * cells and itself. If a cell has less than 8 surrounding cells, then use as many as you can.
+     *
+     * Solution: Iterate over the combination of (-1, 0, +1) and (-1, 0, +1).
+     */
+    public int[][] imageSmoother(int[][] M) {
+        int[][] ret = new int[M.length][M[0].length];
+
+        for (int i = 0; i < M.length; i++) {
+            for (int j = 0; j < M[0].length; j++) {
+                ret[i][j] = getAverageGrayScale(M, i, j);
+            }
+        }
+
+        return ret;
+    }
+
+    private int getAverageGrayScale(int[][] M, int row, int col) {
+        int divisor = 1;
+        int sumIncItself = 0;
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (row + i < 0 || col + j < 0 || row + i > M.length - 1 || col + j > M[0].length - 1) {
+                    continue;
+                }
+                divisor++;
+                sumIncItself += M[row + i][col + j];
+            }
+        }
+
+        return (sumIncItself / divisor);
+    }
 }

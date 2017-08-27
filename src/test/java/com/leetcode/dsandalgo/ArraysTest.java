@@ -2,6 +2,8 @@ package com.leetcode.dsandalgo;
 
 import org.junit.Test;
 
+import java.util.concurrent.Executor;
+
 /**
  * Created by amit on 6/8/17.
  */
@@ -79,6 +81,18 @@ public class ArraysTest {
         arraysList.merge(arr1, 6, arr2, 3);
         for (int i = 0; i < arr1.length; i++) {
             System.out.print(arr1[i] + ",");
+        }
+    }
+
+    @Test
+    public void imageSmoother() {
+        int[][] arr = new int[][]{{-1,-11,-1}, {1,0,1}, {111,111,1111}};
+        int[][] ret = arraysList.imageSmoother(arr);
+        for (int i = 0; i < arr.length; i++) {
+            for (int j = 0; j < arr[0].length; j++) {
+                System.out.print(ret[i][j] + ",");
+            }
+            System.out.println();
         }
     }
 }
