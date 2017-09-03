@@ -1,12 +1,14 @@
 package com.leetcode.dsandalgo;
 
+import org.omg.PortableInterceptor.INACTIVE;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Created by amit on 6/8/17.
  */
-public class ArraysList {
+public class Arrays {
 
     /**
      * Problem 1: Given a non-negative integer represented as a non-empty array of digits, plus one to the integer.
@@ -65,7 +67,7 @@ public class ArraysList {
      Solution: sort the list and take consecutive elements to create all pairs.
     */
     public int arrayPairSum(int[] nums) {
-        Arrays.sort(nums);
+        java.util.Arrays.sort(nums);
         int sum = 0;
         if (nums.length % 2 == 0) {
             return sum;
@@ -186,7 +188,7 @@ public class ArraysList {
     complexity.
     */
     public int maximumProduct(int[] nums) {
-        Arrays.sort(nums);
+        java.util.Arrays.sort(nums);
         int lastIndex = nums.length - 1;
         int _1comp = nums[0] * nums[1] * nums[lastIndex];
         int _2comp = nums[lastIndex - 2] * nums[lastIndex - 1] * nums[lastIndex];
@@ -520,7 +522,7 @@ public class ArraysList {
     }
 
     private int getAverageGrayScale(int[][] M, int row, int col) {
-        int divisor = 1;
+        int divisor = 0;
         int sumIncItself = 0;
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
@@ -534,4 +536,307 @@ public class ArraysList {
 
         return (sumIncItself / divisor);
     }
+
+    /**
+     * Problem 17: Given an array with n integers, your task is to check if it could become non-decreasing by
+     * modifying at most 1 element.
+     *
+     * Solution: Greedy Solution: If i < i-1 then do not increase i since it may create inversions for position
+     * greater than i, so decrease i-1. If i-2 is also greater than i then either decrease i-2 and i-1 or increase i.
+     * We will increase the value of i. Copy value of i to i-1 if i-2<0 ori-2 <= i ELSE copy i-1 to i.
+     */
+    public boolean checkPossibility(int[] nums) {
+        int counter = 0;
+        for (int i = 1, size = nums.length; i < size && counter <= 1; i++) {
+            if (nums[i] < nums[i - 1]) {
+                counter++;
+                if (i - 2 < 0 || (nums[i - 2] <= nums[i])) {
+                    nums[i - 1] = nums[i];
+                } else {
+                    nums[i] = nums[i - 1];
+                }
+            }
+        }
+        return counter <= 1;
+    }
+
+    /**
+     * Problem 18: Given an array consisting of n integers, find the contiguous subarray of given length k that has
+     * the maximum average value. And you need to output the maximum average value.
+     *
+     * Solution: Sliding window. Calculate first k elements sum. and then exclude first and include kth element. and
+     * then get max everytime. O(n) solution.
+     */
+    public double findMaxAverage(int[] nums, int k) {
+        long sum = 0;
+        for (int i = 0; i < k; i++) {
+            sum += nums[i];
+        }
+
+        long max = sum;
+        for (int i = k; i < nums.length; i++) {
+            sum += nums[i] - nums[i - k];
+            max = Math.max(sum, max);
+        }
+        return max * 1.0/k;
+    }
+
+    /**
+     * Problem 19: Given m arrays, and each array is sorted in ascending order. Now you can pick up two integers from
+     * two different arrays (each array picks one) and calculate the distance. We define the distance between two
+     * integers a and b to be their absolute difference |a-b|.
+     *
+     * Solution: In a single iteration, take first and last index and subtract it from min and max. Then store the
+     * min and max out of those. At the same time seek for maxDistance. O(n)
+     */
+    public long findMaximumDistance(int[][] list) {
+        int min = list[0][0];
+        int max = list[list[0].length - 1][list[0].length - 1];
+
+        long maxDistance = 0;
+        for (int i = 1; i < list.length; i++) {
+            int _1distance = Math.abs(min - list[i][list[i].length - 1]);
+            int _2distance = Math.abs(max - list[i][0]);
+
+            maxDistance = Math.max(Math.max(_1distance, _2distance), maxDistance);
+            min = Math.min(min, list[i][0]);
+            max = Math.max(max, list[i][list[i].length - 1]);
+        }
+
+        return maxDistance;
+    }
+
+    /**
+     * Problem 20: Suppose you have a long flowerbed in which some of the plots are planted and some are not.
+     * However, flowers cannot be planted in adjacent plots - they would compete for water and both would die.
+     * Given a flowerbed (represented as an array containing 0 and 1, where 0 means empty and 1 means not empty), and
+     * a number n, return if n new flowers can be planted in it without violating the no-adjacent-flowers rule.
+     *
+     * Solution: Will be less than O(n). Look conditions for the solution.
+     */
+    public boolean canPlaceFlowers(int[] flowerBed, int n) {
+        for (int i = 0, size = flowerBed.length; i < size &&  n != 0; i++) {
+            // Conditions
+            if (flowerBed[i] == 0) {
+                if ((i - 1 < 0 && i + 1 >= size)
+                        || (i - 1 < 0 && flowerBed[i + 1] == 0)
+                        || (i + 1 >= size && flowerBed[i - 1] == 0)
+                        || (i - 1 >= 0 && i + 1 <= size && flowerBed[i - 1] == 0) && flowerBed[i + 1] == 0)
+                {
+                    flowerBed[i] = 1;
+                    n--;
+                    i++;
+                }
+            }
+        }
+
+        return n == 0;
+    }
+
+    /**
+     * Problem 21: Given an array of integers and an integer k, you need to find the number of unique k-diff pairs in
+     * the array. Here a k-diff pair is defined as an integer pair (i, j), where i and j are both numbers in the
+     * array and their absolute difference is k.
+     *
+     * Solution: For duped elements we will search at the time of insertion to map. If we will be able to find out non
+     * zero result value their only then we can return directly. Else if k <= 0, we are either searching for duped
+     * elements or no element at all[absolute diff].
+     * Else we can go for distinct element search.
+     */
+    public int findPairs(int[] nums, int k) {
+        Map<Integer, Integer> intMap = new HashMap<>();
+        int uniquePairCount = 0;
+        boolean skipFurther = false;
+        for (int i = 0; i < nums.length; i++) {
+            if (Objects.nonNull(intMap.putIfAbsent(nums[i], 1))) {
+                intMap.put(nums[i], (intMap.get(nums[i]) + 1));
+                if ((intMap.get(nums[i]) == 2) && (nums[i] - k == nums[i])) {
+                    uniquePairCount++;
+                    skipFurther = true;
+                }
+            }
+        }
+
+        // No need to search for distinct elements. Skipping.
+        if (skipFurther || k <= 0) {
+            return uniquePairCount;
+        }
+        for (Map.Entry<Integer, Integer> element : intMap.entrySet()) {
+            int probe = element.getKey() + k;
+            if (intMap.containsKey(probe)) {
+                uniquePairCount++;
+            }
+        }
+
+        return uniquePairCount;
+    }
+
+    /**
+     * Problem 22: Given a binary array, find the maximum number of consecutive 1s in this array.
+     *
+     * Solution: Linear iteration. Increment counter with 1 till find 0 where make counter as 0. Store max everytime.
+     */
+    public int maxConsecutiveOnes(int[] nums) {
+        int max = 0;
+        int count = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] == 1) {
+                count++;
+            }
+
+            if (nums[i] == 0) {
+                count = 0;
+            }
+
+            max = Math.max(count, max);
+        }
+
+        return max;
+    }
+
+    /**
+     * Problem 23: Given an array nums, write a function to move all 0's to the end of it while maintaining the
+     * relative order of the non-zero elements.
+     * For example, given nums = [0, 1, 0, 3, 12], after calling your function, nums should be [1, 3, 12, 0, 0].
+     *
+     * Solution: Linear iteration, with j = 0, copy non-zero element to j and increment j by 1. At the end assign 0
+     * to all elements from j to nums.length
+     */
+    public void moveZeroes(int[] nums) {
+        int j = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != 0) {
+                nums[j] = nums[i];
+                j++;
+            }
+        }
+
+        for (int i = j; i < nums.length; i++) {
+            nums[i] = 0;
+        }
+    }
+
+    /**
+     * Problem 24: Given an array containing n distinct numbers taken from 0, 1, 2, ..., n, find the one that is
+     * missing from the array.
+     * For example, Given nums = [0, 1, 3] return 2.
+     * Note: Your algorithm should run in linear runtime complexity. Could you implement it using only constant extra
+     * space complexity?
+     *
+     * Solution: n*(n+1)/2 - sum of all elements of the array
+     */
+    public int misingNumber(int[] nums) {
+        int size = nums.length;
+        int _nSum = (size * (size + 1)) / 2;
+        int _arrSum = 0;
+        for (int i = 0; i < size; i++) {
+            _arrSum += nums[i];
+        }
+
+        return _nSum - _arrSum;
+    }
+
+    /**
+     * Problem 25: Given a list of words and two words word1 and word2, return the shortest distance between these
+     * two words in the list.
+     * For example,
+     * Assume that words = ["practice", "makes", "perfect", "coding", "makes"].
+     * Given word1 = “coding”, word2 = “practice”, return 3.
+     * Given word1 = "makes", word2 = "coding", return 1.
+     *
+     * Solution: If w1, w2 are the words then linearly iterate and whenever find the word then store the index and
+     * get the minimum abs diff.
+     */
+    public int shortestDistance(String[] words, String word1, String word2) {
+        int n = -1;
+        int m = -1;
+
+        int min = Integer.MAX_VALUE;
+        for (int i = 0; i < words.length; i++) {
+            if (words[i].equals(word1)) {
+                n = i;
+                if (m != -1) {
+                    min = Math.min(min, Math.abs(n - m));
+                }
+            } else if (words[i].equals(word2)) {
+                m = i;
+                if (n != -1) {
+                    min = Math.min(min, Math.abs(n - m));
+                }
+            }
+        }
+
+        return min;
+    }
+
+    /**
+     * Problem 26: Given an array of integers and an integer k, find out whether there are two distinct indices i and
+     * j in the array such that nums[i] = nums[j] and the absolute difference between i and j is at most k.
+     *
+     * Solution: Variant of sliding window problem. Remember diff is <b>atmost</b> k.
+     */
+    public boolean containsNearbyDuplicate(int[] nums, int k) {
+        if (k <= 0) {
+            return false;
+        }
+
+        Map<Integer, Integer> intMap  = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            if (Objects.nonNull(intMap.putIfAbsent(nums[i], i))) {
+                if (Math.abs(i - intMap.get(nums[i])) <= k) {
+                    return true;
+                } else {
+                    intMap.put(nums[i], i);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Problem 27: Given an array of integers, find if the array contains any duplicates. Your function should return
+     * true if any value appears at least twice in the array, and it should return false if every element is distinct.
+     *
+     * Solution: Use set but faster should be the use of map.
+     */
+    public boolean containsDuplicate(int[] nums) {
+        Map<Integer, Integer> intMap = new HashMap<>();
+        for (Integer num : nums) {
+            if (Objects.nonNull(intMap.putIfAbsent(num, 1))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Problem 28: Rotate an array of n elements to the right by k steps.
+     * For example, with n = 7 and k = 3, the array [1,2,3,4,5,6,7] is rotated to [5,6,7,1,2,3,4].
+     * Note: Try to come up as many solutions as you can, there are at least 3 different ways to solve this problem.
+     *
+     * Solution: Reverse from 0, n-1 then 0 to k-1 then k to n-1. K are steps not elements by which we need to rotate
+     * to right so calculate mod: k = k%n
+     */
+    public void rotateArray(int[] nums, int k) {
+        k %= nums.length;
+
+        reverse(nums, 0, nums.length - 1);
+        reverse(nums, 0, k - 1);
+        reverse(nums, k, nums.length - 1);
+    }
+
+    private void reverse(int[] nums, int start, int end) {
+        int i = start;
+        int j = end;
+        while (i < j) {
+            int temp = nums[i];
+            nums[i] = nums[j];
+            nums[j] = temp;
+            i++;
+            j--;
+        }
+    }
 }
+
