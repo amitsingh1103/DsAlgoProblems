@@ -3,6 +3,9 @@ package com.leetcode.dsandalgo;
 import org.omg.PortableInterceptor.INACTIVE;
 
 import java.util.*;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -725,7 +728,7 @@ public class Arrays {
      *
      * Solution: n*(n+1)/2 - sum of all elements of the array
      */
-    public int misingNumber(int[] nums) {
+    public int missingNumber(int[] nums) {
         int size = nums.length;
         int _nSum = (size * (size + 1)) / 2;
         int _arrSum = 0;
@@ -837,6 +840,129 @@ public class Arrays {
             i++;
             j--;
         }
+    }
+
+    /**
+     * Problem 29: Say you have an array for which the ith element is the price of a given stock on day i.
+     * If you were only permitted to complete at most one transaction (ie, buy one and sell one share of the stock),
+     * design an algorithm to find the maximum profit.
+     *
+     * Solution: first buy then sell. So iterate from left to right and store the min val encountered and maxDiff
+     * generated.
+     */
+    public int maxPrices(int[] prices) {
+        int min = prices[0];
+        int maxProfit = 0;
+        for (int i = 1; i < prices.length; i++) {
+            min = Math.min(min, prices[i]);
+
+            int currProfit = prices[i] - min;
+            maxProfit = Math.max(maxProfit, currProfit);
+        }
+
+        return maxProfit;
+    }
+
+    /**
+     * Problem 30: Say you have an array for which the ith element is the price of a given stock on day i.
+     * Design an algorithm to find the maximum profit. You may complete as many transactions as you like (ie, buy one
+     * and sell one share of the stock multiple times). However, you may not engage in multiple transactions at the
+     * same time (ie, you must sell the stock before you buy again).
+     *
+     * Solution: With peak and valley approach, find a peak just followed by valley(i > i-1) and get the diff. Do it
+     * consecutively and additively, here the:
+     * 1. idea of consecutive is i<j<k then [k-i = j-1 + k-j]
+     * 2. idea of additive is Max peak and min valley will always be lower than and equals to the sum of the diff
+     * of local peak and local valley.
+     */
+    public int maxProfit(int[] prices) {
+        int maxProfit = 0;
+        for (int i = 1; i < prices.length; i++) {
+            if (prices[i] > prices[i - 1]) {
+                maxProfit += prices[i] - prices[i - 1];
+            }
+        }
+
+        return maxProfit;
+    }
+
+    /**
+     * Problem 31: Given numRows, generate the first numRows of Pascal's triangle.
+     *
+     * Solution: Use the logic in [problem 2] to generate rows of pascal's triangle.
+     */
+    public List<List<Integer>> generatePascalTriangle(int numRows) {
+        List<List<Integer>> resultList = new ArrayList<>();
+        for (int i = 0; i < numRows; i++) {
+            List<Integer> rowList = new ArrayList<>();
+            Integer binomialCoefficient = 1;
+            for (int j = 1; j <= i; j++) {
+                rowList.add(binomialCoefficient);
+                binomialCoefficient = (binomialCoefficient * (i - (j - 1))) / j;
+            }
+            rowList.add(binomialCoefficient);
+            resultList.add(rowList);
+        }
+
+        return resultList;
+    }
+
+    /**
+     * Problem 32: Given an unsorted array of integers, find the length of longest continuous increasing subsequence.
+     *
+     * Solution: Store the max_so_far till the lower value found.
+     */
+    public int findLengthOfLCIS(int[] nums) {
+        if (nums.length == 0) {
+            return 0;
+        }
+
+        int maxCount = 1;
+        int countSoFor = 1;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] <= nums[i - 1]) {
+                countSoFor = 0;
+            }
+            countSoFor++;
+            maxCount = Math.max(maxCount, countSoFor);
+        }
+        return maxCount;
+    }
+
+    /**
+     * Problem 33: Find the contiguous subarray within an array (containing at least one number) which has the
+     * largest sum.
+     * For example, given the array [-2,1,-3,4,-1,2,1,-5,4], the contiguous subarray [4,-1,2,1] has the largest sum = 6.
+     *
+     * Solution: Use kadane's algorithm.
+     * ALso just extended to store the indexes also.
+     */
+    public int maxSubArray(int[] nums) {
+        int maxSoFar = nums[0];
+        int currSum = nums[0];
+
+        int lowIndex = 0;
+        int currLowIndex = 0;
+        int highIndex = 0;
+        for (int i = 1; i < nums.length; i++) {
+            /*currSum = Math.max(nums[i], nums[i] + currSum);
+            maxSoFar = Math.max(maxSoFar, currSum);*/
+            if (nums[i] > (currSum + nums[i])) {
+                currSum = nums[i];
+                currLowIndex = i;
+            } else {
+                currSum = nums[i] + currSum;
+            }
+
+            if (currSum > maxSoFar) {
+                maxSoFar = currSum;
+                lowIndex = currLowIndex;
+                highIndex = i;
+            }
+        }
+
+        System.out.println("Low[" + lowIndex + "], High[" + highIndex + "]");
+        return maxSoFar;
     }
 }
 

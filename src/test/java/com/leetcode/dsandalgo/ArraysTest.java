@@ -134,4 +134,10 @@ public class ArraysTest {
         int[] arr = new int[]{1,-1,2,5,3,2};
         System.out.println(arrays.containsNearbyDuplicate(arr, 3));
     }
+
+    @Test
+    public void maxSubArray() {
+        int[] arr = new int[]{1,2,3,4,-1,-2,-3,5,4,6,-2,-10,4,3};
+        System.out.println("Max sum of contiguous subarray: " + arrays.maxSubArray(arr));
+    }
 }
