@@ -111,4 +111,33 @@ public class Tree {
         keys.add(root.val);
         inorderTraversal(root.right);
     }
+
+    /**
+     * Problem 4: Given a binary tree, find the length of the longest path where each node in the path has the same
+     * value. This path may or may not pass through the root.
+     *
+     * Solution:
+     */
+    int maxValue = Integer.MIN_VALUE;
+    public int longestUniValuePath(TreeNode root) {
+        calculateLongestUniValuePath(null, root, 0);
+        return maxValue;
+    }
+
+    private int calculateLongestUniValuePath(TreeNode prevNode, TreeNode currNode, int sum) {
+        if (currNode == null) {
+            return 0;
+        }
+
+        int currSum = 0;
+        if (prevNode != null && (prevNode.val == currNode.val)) {
+            currSum = sum + 1;
+        }
+
+        int lSum = calculateLongestUniValuePath(currNode, currNode.left, currSum);
+        int rSum  =calculateLongestUniValuePath(currNode, currNode.right, currSum);
+
+        maxValue = Math.max(lSum + rSum, maxValue);
+        return lSum + rSum;
+    }
 }
