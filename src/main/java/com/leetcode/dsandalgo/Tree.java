@@ -4,7 +4,9 @@ import java.util.*;
 
 public class Tree {
 
-    class TreeNode {
+    TreeNode root;
+
+    static class TreeNode {
         int val;
         TreeNode left;
         TreeNode right;
@@ -13,6 +15,8 @@ public class Tree {
             val = x;
         }
     }
+
+
 
     /**
      * Problem 1: Given a Binary Search Tree (BST), convert it to a Greater Tree such that every key of the original
@@ -124,11 +128,10 @@ public class Tree {
      * to its ancestors.
      * 2. Secondly we need to get the maximum to get the path without/with root.
      */
-    int maxValue = Integer.MIN_VALUE;
-
+    int maxFrequency = Integer.MIN_VALUE;
     public int longestUniValuePath(TreeNode root) {
         calculateLongestUniValuePath(root);
-        return maxValue;
+        return maxFrequency;
     }
 
     private int calculateLongestUniValuePath(TreeNode root) {
@@ -148,7 +151,7 @@ public class Tree {
             rightSum = right + 1;
         }
 
-        maxValue = Math.max(maxValue, leftSum + rightSum);
+        maxFrequency = Math.max(maxFrequency, leftSum + rightSum);
         return Math.max(leftSum, rightSum);
     }
 
@@ -314,5 +317,275 @@ public class Tree {
             node.right = temp;
         }
         return root;
+    }
+
+    /**
+     * Problem 10: Given a binary tree, return all root-to-leaf paths.
+     *
+     * Solution: Traverse recursively from root to leaf node. If right/left is not null, create stemp string from
+     * pathSoFar and append the right/left value in it. Then call the method recursively.
+     */
+    public List<String> binaryTreePaths(TreeNode root) {
+        List<String> allRootToLeafPaths = new ArrayList<>();
+
+        if (root == null) {
+            return allRootToLeafPaths;
+        }
+        findAllRootToLeafPaths(root, String.valueOf(root.val), allRootToLeafPaths);
+        return allRootToLeafPaths;
+    }
+
+    private void findAllRootToLeafPaths(TreeNode root, String pathSoFar, List<String> allRootToLeafPaths) {
+        if (root == null) {
+            return;
+        }
+        if (root.left == null && root.right == null) {
+            allRootToLeafPaths.add(pathSoFar);
+            return;
+        }
+
+        if (root.left != null) {
+            String pathLeft = pathSoFar;
+            StringBuilder builder = new StringBuilder();
+            pathLeft = builder.append(pathLeft).append("->").append(root.left.val).toString();
+            findAllRootToLeafPaths(root.left, pathLeft, allRootToLeafPaths);
+        }
+        if (root.right != null) {
+            String pathRight = pathSoFar;
+            StringBuilder builder = new StringBuilder();
+            pathRight = builder.append(pathRight).append("->").append(root.right.val).toString();
+            findAllRootToLeafPaths(root.right, pathRight, allRootToLeafPaths);
+        }
+    }
+
+    /**
+     * Problem 11: Find the sum of all left leaves in a given binary tree.
+     *
+     * Solution: For each node, if left child is not null and it is a leaf node then add the value in total sum. Call
+     * this method recursively for left and right child.
+     */
+    int totalLeftSum = 0;
+    public int sumOfLeftLeaves(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+
+        if (root.left != null && root.left.left == null && root.left.right == null) {
+            totalLeftSum += root.left.val;
+        }
+
+        sumOfLeftLeaves(root.left);
+        sumOfLeftLeaves(root.right);
+
+        return totalLeftSum;
+    }
+
+    /**
+     * Problem 12: You are given a binary tree in which each node contains an integer value. Find the number of paths
+     * that sum to a given value.
+     * The path does not need to start or end at the root or a leaf, but it must go downwards (traveling only from
+     * parent nodes to child nodes).
+     *
+     * Solution: do DFS on root node for all the possibilities(node and without node). O(n^2) time complexity.
+     */
+    public int pathSum(TreeNode root, int sum) {
+        if (root == null) {
+            return 0;
+        }
+
+        return pathSumForNode(root,sum) + pathSum(root.left, sum) + pathSum(root.right, sum);
+    }
+
+    private int pathSumForNode(TreeNode root, int sum) {
+        if (root == null) {
+            return 0;
+        }
+
+        return (root.val == sum ? 1 : 0) + pathSumForNode(root.left, sum - root.val) + pathSumForNode(root.right, sum
+                - root.val);
+    }
+
+    /**
+     * Problem 13: Given a binary search tree (BST) with duplicates, find all the mode(s) (the most frequently
+     * occurred element) in the given BST.
+     *
+     * Solution: Inorder traversal on BST generates a sorted list. Compare prev value to the current value in order
+     * to get the count of same value of the node.
+     * Solution 1: One way to do is to use a list and convert it to array.
+     *
+     * Solution 2: But if we do not want to use a list then we have to double pass inorderHandler method. In first
+     * pass we will get the total size of the array, it can be 1 or greater than 1. In next pass we will initialize
+     * the array with the maxCount we got. Then we will make modeCount as 0 before going to second pass.
+     *
+     * Solution 3: If we do not want recursive solution then we can have morris algo to do inorder traversal of bt.
+     */
+    int maxFreq;
+    int currCount;
+    int currValue;
+    int modeCount;
+    int modes[];
+    public int[] findMode(TreeNode root) {
+        inorderHandler(root);
+        modes = new int[modeCount];
+        modeCount = 0;
+        inorderHandler(root);
+        return modes;
+    }
+
+    private void inorderHandler(TreeNode root) {
+        if (root == null) {
+            return;
+        }
+
+        inorderHandler(root.left);
+        if (currValue != root.val) {
+            currValue = root.val;
+            currCount = 0;
+        }
+        currCount++;
+        if (currCount > maxFreq) {
+            maxFreq = currCount;
+            modeCount = 1;
+        } else if (currCount == maxFreq) {
+            if (modes != null) {
+                modes[modeCount] = root.val;
+            }
+            modeCount++;
+        }
+        inorderHandler(root.right);
+    }
+
+    /**
+     * Problem 14: Given a non-empty special binary tree consisting of nodes with the non-negative value, where each
+     * node in this tree has exactly two or zero sub-node. If the node has two sub-nodes, then this node's value is
+     * the smaller value among its two sub-nodes.
+     * Given such a binary tree, you need to output the second minimum value in the set made of all the nodes' value
+     * in the whole tree.
+     * If no such second minimum value exists, output -1 instead.
+     *
+     * Solution: If a node cannot be a candidate for second minimum then return and do not call it's right or left
+     * child. And if a node become a current secondMin value then also do not call left and right child of it.
+     * Else always call left and right child.
+     */
+    int minValue;
+    int secondMninValue = Integer.MAX_VALUE;
+    public int findSecondMinimumValue(TreeNode root) {
+        if (root == null) {
+            return secondMninValue;
+        }
+
+        minValue = root.val;
+        computeSecondMinValue(root);
+        return secondMninValue == Integer.MAX_VALUE ? -1 : secondMninValue;
+    }
+
+    private void computeSecondMinValue(TreeNode root) {
+        if (root == null) {
+            return;
+        }
+        if (root.val > secondMninValue) {
+            return;
+        }
+        if (root.val > minValue && root.val < secondMninValue) {
+            secondMninValue = root.val;
+            return;
+        }
+
+        computeSecondMinValue(root.left);
+        computeSecondMinValue(root.right);
+    }
+
+    /**
+     * Problem 15: Given a binary tree, you need to compute the length of the diameter of the tree.
+     * The diameter of a binary tree is the length of the longest path between any two nodes in a tree. This path may
+     * or may not pass through the root.
+     *
+     * Solution: This problem is similar to finding LongestUniValuePath.
+     */
+    int diameterNotFromRoot = Integer.MIN_VALUE;
+    public int diameterOfBinaryTree(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        return Math.max( getDiameter(root), diameterNotFromRoot);
+    }
+
+    private int getDiameter(TreeNode root) {
+        int left = root.left == null ? 0 : getDiameter(root.left) + 1;
+        int right = root.right == null ? 0 : getDiameter(root.right) + 1;
+        diameterNotFromRoot = Math.max(diameterNotFromRoot, left + right);
+        return Math.max(left, right);
+    }
+
+    /**
+     * Problem 16: Given a binary tree and a sum, determine if the tree has a root-to-leaf path such that adding up
+     * all the values along the path equals the given sum.
+     *
+     * Solution: Each time subtract the node value from the sum to get 0 till leaf node arrives. Return true. Or
+     * condition between root.left and root.right. Recursive solution
+     */
+    public boolean hasPathSum(TreeNode root, int sum) {
+        if (root == null) {
+            return false;
+        }
+
+        if (root.left == null && root.right == null && root.val == sum) {
+            return true;
+        }
+
+        return hasPathSum(root.left, sum - root.val) || hasPathSum(root.right, sum - root.val);
+    }
+
+    /**
+     * Problem 17: Given a binary tree, find its minimum depth.
+     * The minimum depth is the number of nodes along the shortest path from the root node down to the nearest leaf
+     * node.
+     *
+     * Solution: Solution is similar to get height of BT with a tweak that instead of getting max get min. Here we
+     * need to handle the case where if either lheight or rHeight is 0, then we need to get the lheight/rHeight + 1.
+     */
+    public int minDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+
+        int lHeight = minDepth(root.left);
+        int rHeight = minDepth(root.right);
+
+        return (lHeight == 0 || rHeight == 0) ? lHeight + rHeight + 1 : Math.min(lHeight, rHeight) + 1;
+    }
+
+    /**
+     * Problem 18: Given a binary tree, determine if it is height-balanced.
+     *
+     * Solution: Bottom to up.
+     * Solution 1: Iterating over each node and get the depth of each node and abs(lHeight - rHeight) <= 1 &&
+     * isBalanced(root.left) && isBalanced(root.right)
+     *
+     * Solution 2: Using DFS get the height starting from left most node and if lheight == -1 or rHeight == -1 then
+     * return -1 to its parent node.
+     */
+    public boolean isBalanced(TreeNode root) {
+        return isBalancedByDfs(root) != -1;
+    }
+
+    private int isBalancedByDfs(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+
+        int lHeight = isBalancedByDfs(root.left);
+        if (lHeight == -1) {
+            return -1;
+        }
+        int rHeight = isBalancedByDfs(root.right);
+        if (rHeight == -1) {
+            return -1;
+        }
+
+        if (Math.abs(lHeight - rHeight) > 1) {
+            return -1;
+        }
+        return Math.max(lHeight, rHeight) + 1;
     }
 }
