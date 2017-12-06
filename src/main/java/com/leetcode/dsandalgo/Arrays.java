@@ -964,5 +964,209 @@ public class Arrays {
         System.out.println("Low[" + lowIndex + "], High[" + highIndex + "]");
         return maxSoFar;
     }
+
+    /**
+     * Problem 34: Given a non-empty 2D array grid of 0's and 1's, an island is a group of 1's (representing land)
+     * connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded
+     * by water. Find the maximum area of an island in the given 2D array. (If there is no island, the maximum area is
+     * 0.)
+     *
+     * Solution: Using DFS on the grid. Iterate over each co-ordinate:-
+     * 1. If it is 1 add 1 to it. Explore 4-directionally the coordinate in DFS manner.
+     * 2. Return 0 if the element is 0 OR c < 0 or r < 0 or c >= length or r >= length OR it is already seen.
+     * 3. We have to mark each co-ordinate as seen since we must not the explored co-ordinate again.
+     * 4. Take maximum of these iterations.
+     *
+     * Explanation: We want to know the area of each connected shape in the grid, then take the maximum of these.
+     * If we are on a land square and explore every square connected to it 4-directionally (and recursively squares
+     * connected to those squares, and so on), then the total number of squares explored will be the area of that
+     * connected shape.
+     * To ensure we don't count squares in a shape more than once, let's use seen to keep track of squares we
+     * haven't visited before. It will also prevent us from counting the same shape more than once.
+     */
+    private boolean[][] seen;
+    public int maxAreaOfIsland(int[][] grid) {
+        seen = new boolean[grid.length][grid[0].length];
+        int ans = 0;
+        for (int i = 0; i  < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+               ans = Math.max(ans, area(i, j, grid));
+            }
+        }
+        return ans;
+    }
+
+    private int area(int r, int c, int[][] grid) {
+        if (r < 0 || r >= grid.length || c < 0 || c >= grid[0].length || seen[r][c] || grid[r][c] == 0) {
+            return 0;
+        }
+
+        seen[r][c] = true;
+        return 1 + area(r + 1, c, grid) + area(r - 1, c, grid) + area(r, c + 1, grid) + area(r, c - 1, grid);
+    }
+
+    /**
+     * Problem 35: Given a non-empty array of non-negative integers nums, the degree of this array is defined as the
+     * maximum frequency of any one of its elements. Your task is to find the smallest possible length of a
+     * (contiguous) subarray of nums, that has the same degree as nums.
+     *
+     * Solution: If d is the degree then there can be x elements that occur d times in the array. Maintain 3 map
+     * one for the count and another for the left and right index of the each element in the array of its last
+     * occurrence in the array.
+     * In the next for loop try to get the maxCount for which length will be minimum.
+     */
+    public int findShortestSubArray(int[] nums) {
+        Map<Integer, Integer> count = new HashMap<>();
+        Map<Integer, Integer> left = new HashMap<>();
+        Map<Integer, Integer> right = new HashMap<>();
+
+
+        for (int i = 0; i < nums.length; i++) {
+            int numCount = count.getOrDefault(nums[i], 0);
+            count.put(nums[i], numCount + 1);
+            left.putIfAbsent(nums[i], i);
+            right.put(nums[i], i);
+        }
+
+        int maxCount = 0;
+        int minLength = Integer.MAX_VALUE;
+        for (Map.Entry<Integer, Integer> entry : count.entrySet()) {
+            if (entry.getValue() > maxCount) {
+                minLength = right.get(entry.getKey()) - left.get(entry.getKey()) + 1;
+                maxCount = entry.getValue();
+            } else if (entry.getValue() == maxCount) {
+                minLength = Math.min(minLength, right.get(entry.getKey()) - left.get(entry.getKey()) + 1);
+            }
+        }
+
+        return minLength;
+    }
+
+    /**
+     * Problem 36: We have two special characters. The first character can be represented by one bit 0. The second
+     * character can be represented by two bits (10 or 11). Now given a string represented by several bits. Return
+     * whether the last character must be a one-bit character or not. The given string will always end with a zero.
+     *
+     * Solution: If 1 bit is found in linear traversal of the array then make isOneBitCharacter as false and skip next
+     * element. Else make isOneBitCharacter true;
+     */
+    public boolean isOneBitCharacter(int[] bits) {
+        boolean isOneBitCharacter = true;
+        for (int i = 0; i < bits.length; i++) {
+            if (bits[i] == 1) {
+                isOneBitCharacter = false;
+                i++;
+                continue;
+            }
+            isOneBitCharacter = true;
+        }
+
+        return isOneBitCharacter;
+    }
+
+    /**
+     * Problem 37: Given an array of integers nums, write a method that returns the "pivot" index of this array. We
+     * define the pivot index as the index where the sum of the numbers to the left of the index is equal to the sum
+     * of the numbers to the right of the index.
+     * If no such index exists, we should return -1. If there are multiple pivot indexes, you should return the
+     * left-most pivot index.
+     *
+     * Solution: We need to quickly compute the sum of values to the left and the right of every index.
+     * Let's say we knew S as the sum of the numbers, and we are at index i. If we knew the sum of numbers leftsum
+     * that are to the left of index i, then the other sum to the right of the index would just be S - nums[i] -
+     * leftsum.
+     * As such, we only need to know about leftsum to check whether an index is a pivot index in constant time. Let's
+     * do that: as we iterate through candidate indexes i, we will maintain the correct value of leftsum.
+     */
+    public int pivotIndex(int[] nums) {
+        int leftSum = 0;
+        int sum = 0;
+        for (int num : nums) {
+            sum += num;
+        }
+
+        for (int i = 0; i < nums.length; i++) {
+            if (leftSum == sum - leftSum - nums[i]) {
+                return i;
+            }
+            leftSum += nums[i];
+        }
+        return -1;
+    }
+
+    /**
+     * Problem 38: Given a collection of intervals, merge all overlapping intervals.
+     *
+     * Solution: Sort the list of intervals by their start time. Compare the start time of second interval with the
+     * end time of first interval and merge them.
+     */
+    private class Interval {
+        private int start;
+        private int end;
+
+        public Interval(){
+            start = 0;
+            end = 0;
+        }
+
+        public Interval(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        public int getStart() {
+            return start;
+        }
+
+        public void setStart(int start) {
+            this.start = start;
+        }
+
+        public int getEnd() {
+            return end;
+        }
+
+        public void setEnd(int end) {
+            this.end = end;
+        }
+    }
+    public List<Interval> merge(List<Interval> intervals) {
+        List<Interval> res = new ArrayList<>();
+        intervals.sort(Comparator.comparing(interval -> interval.getStart()));
+
+        if (intervals.isEmpty()) {
+            return res;
+        }
+        res.add(intervals.get(0));
+        for (Interval interval : intervals) {
+            int size = res.size();
+            if (interval.getStart() <= res.get(size - 1).getEnd()) {
+                int endTime = Math.max(res.get(size - 1).getEnd(), interval.getEnd());
+                res.get(size - 1).setEnd(endTime);
+                continue;
+            }
+            res.add(interval);
+        }
+        return res;
+    }
+
+    /**
+     * problem 39: Given an array of integers, 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and
+     * others appear once. Find all the elements that appear twice in this array.
+     * Could you do it without extra space and in O(n) runtime?
+     *
+     * Solution: Whenever find an element go to that index and negate the value. Whenever any element is accessed
+     * with negative sign then it's a duplicate.
+     */
+    public List<Integer> findDuplicates(int[] nums) {
+        List<Integer> res = new ArrayList<>();
+        for (int num : nums) {
+            if (nums[Math.abs(num) - 1] < 0) {
+                res.add(Math.abs(num));
+            }
+            nums[Math.abs(num) - 1] = -1 *  nums[Math.abs(num) - 1];
+        }
+        return res;
+    }
 }
 

@@ -140,4 +140,10 @@ public class ArraysTest {
         int[] arr = new int[]{1,2,3,4,-1,-2,-3,5,4,6,-2,-10,4,3};
         System.out.println("Max sum of contiguous subarray: " + arrays.maxSubArray(arr));
     }
+
+    @Test
+    public void pivotIndex() {
+        int[] arr = new int[]{-1,0,0,0,-1,0};
+        System.out.println(arrays.pivotIndex(arr));
+    }
 }
