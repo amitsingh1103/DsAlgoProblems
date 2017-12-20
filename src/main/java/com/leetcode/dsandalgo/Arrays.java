@@ -1168,5 +1168,473 @@ public class Arrays {
         }
         return res;
     }
+
+    /**
+     * Problem 40: Given an array S of n integers, are there elements a, b, c in S such that a + b + c = 0? Find all
+     * unique triplets in the array which gives the sum of zero.
+     * The solution set must not contain duplicate triplets.
+     *
+     * Solution: Sort the list so that we can get the result with two pointers logic[bidirectional 2sum sweep of the
+     * list]. We need to skip the duplicate result by skipping those elements which are equal to previous element in
+     * the sorted list.
+     */
+    public List<List<Integer>> threeSum(int[] nums) {
+        List<List<Integer>> triplets = new ArrayList<>();
+        java.util.Arrays.sort(nums);
+        for (int i = 0; i < nums.length - 1; i++) {
+            if (i == 0 || (i > 0 && nums[i] != nums[i - 1])) {
+                int low = i + 1;
+                int high = nums.length - 1;
+                int sum = 0 - nums[i];
+                while (low < high) {
+                    if (nums[low] + nums[high] == sum) {
+                        triplets.add(java.util.Arrays.asList(nums[i], nums[low], nums[high]));
+                        while (low < high && nums[low + 1] == nums[low]) {
+                                low++;
+                        }
+                        while (low < high && nums[high - 1] == nums[high]) {
+                                high--;
+                        }
+
+                        low++;
+                        high--;
+                    } else if (nums[low] + nums[high] < sum) {
+                        low++;
+                    } else {
+                        high--;
+                    }
+                }
+            }
+        }
+        return triplets;
+    }
+
+    /**
+     * Problem 41: Given an array of non-negative integers, you are initially positioned at the first index of the
+     * array. Each element in the array represents your maximum jump length at that position.
+     * Determine if you are able to reach the last index.
+     *
+     * Solution: It is a dynamic programming/backtracking problem if we need to find out the minimum jump but in
+     * order to get if we can jump to last index, we can simply start from the last but one index. Find if maxJump
+     * from that index is greater than current last index then it's a good index. At the end if we are able to get
+     * last index value <= 0 then we can reach else not.
+     */
+    public boolean canJump(int[] nums) {
+        int last = nums.length - 1;
+        for (int i = last - 1; i >= 0; i--) {
+            if (i + nums[i] >= last) {
+                last = i;
+            }
+        }
+        if (last == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Problem 42: Given an array S of n integers, find three integers in S such that the sum is closest to a given
+     * number, target. Return the sum of the three integers. You may assume that each input would have exactly one
+     * solution.
+     *
+     * Solution: Similar to problem 40. O(n^2) solution.
+     */
+    public int threeSumClosest(int[] nums, int target) {
+        int closestValue = nums[0];
+        int smallestDiff = Integer.MAX_VALUE;
+        java.util.Arrays.sort(nums);
+        for (int i = 0; i < nums.length - 2; i++) {
+            int low = i + 1;
+            int high = nums.length - 1;
+            while (low < high) {
+                if (smallestDiff > Math.abs(target - (nums[low] + nums[high] + nums[i]))) {
+                    smallestDiff = Math.abs(target - (nums[low] + nums[high] + nums[i]));
+                    closestValue = nums[low] + nums[high] + nums[i];
+                }
+
+                if (nums[i] + nums[low] + nums[high] == target) {
+                    return target;
+                } else if (nums[i] + nums[low] + nums[high] < target) {
+                    low++;
+                } else {
+                    high--;
+                }
+            }
+        }
+        return closestValue;
+    }
+
+    /**
+     * Problem 43: Design a data structure that supports all following operations in average O(1) time.
+     * insert(val): Inserts an item val to the set if not already present.
+     * remove(val): Removes an item val from the set if present.
+     * getRandom: Returns a random element from current set of elements. Each element must have the same probability
+     * of being returned.
+     *
+     * Solution: Use 2 hashmap and random function and a arrayList.
+     */
+    /** Initialize your data structure here. */
+    Map<Integer, Integer> valToCountMap = new HashMap<>();
+    Map<Integer, Integer> countToValueMap = new HashMap<>();
+    int count;
+    Random rand = new Random();
+
+    /** Inserts a value to the set. Returns true if the set did not already contain the specified element. */
+    public boolean insert(int val) {
+        if (valToCountMap.containsKey(val)) {
+            return false;
+        }
+        valToCountMap.put(val, count);
+        countToValueMap.put(count, val);
+        count = valToCountMap.size();
+        return true;
+    }
+
+    /** Removes a value from the set. Returns true if the set contained the specified element. */
+    public boolean remove(int val) {
+        if (!valToCountMap.containsKey(val)) {
+            return false;
+        }
+        int valueCount = valToCountMap.get(val);
+        valToCountMap.remove(val);
+        if (valueCount != countToValueMap.size() - 1) {
+            countToValueMap.put(valueCount, countToValueMap.get(countToValueMap.size() - 1));
+            valToCountMap.put(countToValueMap.get(countToValueMap.size() - 1), valueCount);
+            countToValueMap.remove(countToValueMap.size() - 1);
+        } else {
+            countToValueMap.remove(valueCount);
+        }
+        count = valToCountMap.size();
+        return true;
+    }
+
+    /** Get a random element from the set. */
+    public int getRandom() {
+        return countToValueMap.get(rand.nextInt(count));
+    }
+
+    /**
+     * Problem 44: Assume you have an array of length n initialized with all 0's and are given k update operations.
+     * Each operation is represented as a triplet: [startIndex, endIndex, inc] which increments each element of
+     * subarray A[startIndex ... endIndex] (startIndex and endIndex inclusive) with inc.
+     * Return the modified array after all k operations were executed.
+     *
+     * Solution: Since 0 is an identity element so we can operate increment value to start index and decrement same
+     * value from endIndex + 1. Then add i-1 to i in the original array. O(K + N)
+     */
+    public void updateArray(int length, int[][] updates) {
+        int[] result = new int[length];
+        for (int i = 0; i < updates.length; i++) {
+            result[updates[i][0]] += updates[i][2];
+            if (updates[i][1] < length - 1) {
+                result[updates[i][1] + 1] -= updates[i][2];
+            }
+        }
+
+        for (int i = 1; i < length - 1; i++) {
+            result[i] += result[i - 1];
+        }
+    }
+
+    /**
+     * Problem 45: Given an array nums containing n + 1 integers where each integer is between 1 and n (inclusive),
+     * prove that at least one duplicate number must exist. Assume that there is only one duplicate number, find the
+     * duplicate one.
+     * Note:
+     * You must not modify the array (assume the array is read only).
+     * You must use only constant, O(1) extra space.
+     * Your runtime complexity should be less than O(n2).
+     * There is only one duplicate number in the array, but it could be repeated more than once.
+     *
+     * Solution: Same algorithm as of cycle detection in linked list.
+     */
+    public int findDuplicate(int[] nums) {
+        if (nums.length <= 1) {
+            return -1;
+        }
+
+        int slow = nums[0];
+        int fast = nums[nums[0]];
+        while (slow != fast)
+        {
+            slow = nums[slow];
+            fast = nums[nums[fast]];
+        }
+
+        fast = 0;
+        while (fast != slow)
+        {
+            fast = nums[fast];
+            slow = nums[slow];
+        }
+        return slow;
+    }
+
+    /**
+     * Problem 46: According to the Wikipedia's article: "The Game of Life, also known simply as Life, is a cellular
+     * automaton devised by the British mathematician John Horton Conway in 1970."
+     * Given a board with m by n cells, each cell has an initial state live (1) or dead (0). Each cell interacts with
+     * its eight neighbors (horizontal, vertical, diagonal) using the following four rules (taken from the above
+     * Wikipedia article):
+     * Any live cell with fewer than two live neighbors dies, as if caused by under-population.
+     * Any live cell with two or three live neighbors lives on to the next generation.
+     * Any live cell with more than three live neighbors dies, as if by over-population.
+     * Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
+     *
+     * Write a function to compute the next state (after one update) of the board given its current state.
+     *
+     * Follow up:
+     * Could you solve it in-place? Remember that the board needs to be updated at the same time: You cannot update
+     * some cells first and then use their updated values to update other cells.
+     * In this question, we represent the board using a 2D array. In principle, the board is infinite, which would
+     * cause problems when the active area encroaches the border of the array. How would you address these problems?
+     *
+     * Solution: Consider two bits as life 00 -> first bit as current state and second bit as next state. Initially
+     * it will be 00 or 01 and following will be the transition:-
+     * 00 -> 00
+     * 00 -> 10
+     * 01 -> 01
+     * 01 -> 11
+     *
+     * To get the current state, '&' with 1
+     * To get the next sate, '>>' by 1
+     */
+    public void gameOfLife(int[][] board) {
+        if (board == null || board.length == 0 || board[0].length == 0) {
+            return;
+        }
+
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                int lives = getNeighbourLives(board, i, j, board.length, board[0].length);
+
+                if ((board[i][j] & 1) == 1 && (lives == 2 || lives == 3)) {
+                    board[i][j] = 3;
+                }
+                if ((board[i][j] & 1) == 0 && lives == 3) {
+                    board[i][j] = 2;
+                }
+            }
+        }
+
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                board[i][j] >>= 1;
+            }
+        }
+    }
+
+    private int getNeighbourLives(int[][] board, int i, int j, int m, int n) {
+        int lives = 0;
+        for (int p = Math.max(i - 1, 0); p <= Math.min(i + 1, m - 1); p++) {
+            for (int q = Math.max(j - 1, 0); q <= Math.min(j + 1, n - 1); q++) {
+                lives += board[p][q] & 1;
+            }
+        }
+        lives -= board[i][j] & 1;
+        return lives;
+    }
+
+    /**
+     * Problem 47: Given an integer n, generate a square matrix filled with elements from 1 to n2 in spiral order.
+     *
+     * Solution: Put the conditions properly.
+     */
+    public int[][] generateMatrix(int n) {
+        int R = n;
+        int C = n;
+        int i = 0;
+        int val = 1;
+        int[][] matrix = new int[n][n];
+        while (R > 0 || C > 0) {
+            for (int c = i; c < C; c++) {
+                matrix[i][c] = val++;
+            }
+
+            for (int r = i + 1; r < R; r++) {
+                matrix[r][C - 1] = val++;
+            }
+
+            for (int c = C - 2; c >= i; c--) {
+                matrix[R - 1][c] = val++;
+            }
+
+            for (int r = R - 2; r > i; r--) {
+                matrix[r][i] = val++;
+            }
+            i++;
+            R -= 1;
+            C -= 1;
+        }
+
+        return matrix;
+    }
+
+    /**
+     * Problem 48: Given an unsorted array nums, reorder it in-place such that nums[0] <= nums[1] >= nums[2] <= nums[3].
+     * For example, given nums = [3, 5, 2, 1, 6, 4], one possible answer is [1, 6, 2, 5, 3, 4].
+     *
+     * Solution: In linear time this can be solved. If below condition for n and n+1 is not hold then swap:-
+     * A[even] <= A[odd]
+     * A[odd] >= A[even]
+     */
+    public void wiggleSort(int[] nums) {
+        if (nums == null || nums.length <= 1) {
+            return;
+        }
+        for (int i = 0; i < nums.length - 1; i++) {
+            if (i % 2 == 0) {
+                if (nums[i] > nums[i + 1]) {
+                    swap(nums, i, i + 1);
+                }
+            } else {
+                if (nums[i] < nums[i + 1]) {
+                    swap(nums, i, i + 1);
+                }
+            }
+        }
+    }
+
+    private void swap(int[] nums, int prev, int next) {
+        int temp = nums[prev];
+        nums[prev] = nums[next];
+        nums[next] = temp;
+    }
+
+    /**
+     * Problem 49: A peak element is an element that is greater than its neighbors.
+     * Given an input array where num[i] ≠ num[i+1], find a peak element and return its index.
+     * The array may contain multiple peaks, in that case return the index to any one of the peaks is fine.
+     * You may imagine that num[-1] = num[n] = -∞.
+     * For example, in array [1, 2, 3, 1], 3 is a peak element and your function should return the index number 2.
+     *
+     * Solution: Do using binary traversal
+     */
+    public int findPeakElement(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return Integer.MIN_VALUE;
+        }
+
+        return findPeakElementHelper(nums, 0, nums.length - 1);
+    }
+
+    private int findPeakElementHelper(int[] nums, int low, int high) {
+        if (low == high) {
+            return low;
+        }
+
+        int mid = (low + high) / 2;
+        if (nums[mid] > nums[mid + 1]) {
+            return findPeakElementHelper(nums, low, mid);
+        }
+        return findPeakElementHelper(nums, mid + 1, high);
+    }
+
+    /**
+     * Problem 50: Your are given an array of positive integers nums.
+     * Count and print the number of (contiguous) subarrays where the product of all the elements in the subarray is
+     * less than k.
+     *
+     * Solution: Sliding Window[O(N)]: Get the product every time by inlcuding right element. If product >= K then
+     * remove leftmost element from the product one by one. Keep adding right - left + 1 result with every right
+     * element.
+     */
+    public int numSubarrayProductLessThanK(int[] nums, int k) {
+        int res = 0;
+        if (k <= 1) {
+            return res;
+        }
+        int left = 0;
+        int prod = 1;
+        for (int right = 0; right < nums.length; right++) {
+            prod *= nums[right];
+            while (prod >= k) {
+                prod /= nums[left++];
+            }
+            res += right - left + 1;
+        }
+        return res;
+    }
+
+    /**
+     * Problem 51: Implement a MyCalendar class to store your events. A new event can be added if adding the event
+     * will not cause a double booking.
+     * Your class will have the method, book(int start, int end). Formally, this represents a booking on the half
+     * open interval [start, end), the range of real numbers x such that start <= x < end.
+     * A double booking happens when two events have some non-empty intersection (ie., there is some time that is
+     * common to both events.)
+     * For each call to the method MyCalendar.book, return true if the event can be added to the calendar
+     * successfully without causing a double booking. Otherwise, return false and do not add the event to the calendar.
+     * Your class will be called like this: MyCalendar cal = new MyCalendar(); MyCalendar.book(start, end)
+     *
+     * Solution: use TreeMap. TreeMap internally has RedBlack tree ds. Evry time get the floorKey and compare its
+     * endTime with start AND then get ceilingKey and compare its startTime with end.
+     * With n inputs, worst time can be O(nlgn). Getting floorKey, ceilingKey and put has O(lgn) time complexity.
+     */
+    TreeMap<Integer, Integer> treeMap = new TreeMap<>();
+    public boolean book(int start, int end) {
+        Integer floorKey = treeMap.floorKey(start);
+        if (floorKey != null && start < treeMap.get(floorKey)) {
+            return false;
+        }
+
+        Integer ceilingKey = treeMap.ceilingKey(start);
+        if (ceilingKey != null && end > ceilingKey) {
+            return false;
+        }
+
+        treeMap.put(start, end);
+        return true;
+    }
+
+    /**
+     * Problem 52: Find the contiguous subarray within an array (containing at least one number) which has the
+     * largest product.
+     * For example, given the array [2,3,-2,4], the contiguous subarray [2,3] has the largest product = 6.
+     *
+     * Solution: Maintain max and min with every element. With each element get max of max*i, min*i and i. Likewise
+     * get the min. O(n) complexity.
+     * Holding minimum value as well since -ve element can make -ve minimum as maximum.
+     */
+    public int maxProduct(int[] nums) {
+        int min = nums[0];
+        int max = nums[0];
+        int result = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            int temp = max;
+            max = Math.max(Math.max(max * nums[i], min * nums[i]), nums[i]);
+            min = Math.min(Math.min(temp * nums[i], min * nums[i]), nums[i]);
+
+            result = Math.max(result, max);
+        }
+        return result;
+    }
+
+    /**
+     * Problem 52: Given an array of n integers where n > 1, nums, return an array output such that output[i] is
+     * equal to the product of all the elements of nums except nums[i].
+     * Solve it without division and in O(n).
+     * For example, given [1,2,3,4], return [24,12,8,6].
+     *
+     * Solution: Left side multiplication: Get multiplication of of each element left to it.
+     * Right side multiplication: Get right side multiplication of each element.
+     * Multiply both side multiplication.
+     */
+    public int[] productExceptSelf(int[] nums) {
+        int[] res = new int[nums.length];
+        res[0] = 1;
+        for (int i = 1; i < nums.length; i++) {
+            res[i] = res[i - 1] * nums[i - 1];
+        }
+
+        int right = nums[nums.length - 1];
+        for (int i = nums.length - 2; i >= 0; i--) {
+            res[i] = res[i] * right;
+            right *= nums[i];
+        }
+        return res;
+    }
 }
+
+
 

@@ -2,6 +2,8 @@ package com.leetcode.dsandalgo;
 
 import org.junit.Test;
 
+import java.lang.reflect.Array;
+
 /**
  * Created by amit on 6/8/17.
  */
@@ -145,5 +147,58 @@ public class ArraysTest {
     public void pivotIndex() {
         int[] arr = new int[]{-1,0,0,0,-1,0};
         System.out.println(arrays.pivotIndex(arr));
+    }
+
+    @Test
+    public void threeSum() {
+        int[] arr = new int[]{-1,0,1,2,-1,-4};
+        System.out.println(arrays.threeSum(arr).toString());
+    }
+
+    @Test
+    public void canJump() {
+        int[] arr = new int[]{0};
+        System.out.println(arrays.canJump(arr));
+    }
+
+    @Test
+    public void threeSumClosest() {
+        int[] arr = new int[]{-1,2,1,-4};
+        System.out.println(arrays.threeSumClosest(arr, 1));
+    }
+
+    @Test
+    public void findDuplicates() {
+        int[] arr = new int[]{2,5,9,6,9,3,8,9,7,1};
+        System.out.println(arrays.findDuplicates(arr));
+    }
+
+    @Test
+    public void gameOfLife() {
+        int[][] arr = new int[][]{{1,1},{1,0}};
+        arrays.gameOfLife(arr);
+        for (int[] subArr : arr) {
+            for (int i : subArr) {
+                System.out.print(i + ", ");
+            }
+        }
+    }
+
+    @Test
+    public void generateMatrix() {
+        int[][] arr = arrays.generateMatrix(4);
+        for (int[] subArr : arr) {
+            for (int i : subArr) {
+                System.out.print(i + ", ");
+            }
+            System.out.println();
+        }
+    }
+
+    @Test
+    public void wiggleSort() {
+        int[] arr = new int[]{3, 5, 2, 1, 6, 4};
+        arrays.wiggleSort(arr);
+        System.out.println(java.util.Arrays.toString(arr));
     }
 }
