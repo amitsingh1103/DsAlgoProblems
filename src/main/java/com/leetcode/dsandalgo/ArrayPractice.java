@@ -1,11 +1,13 @@
 package com.leetcode.dsandalgo;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Created by amit on 6/8/17.
  */
-public class Arrays {
+public class ArrayPractice {
 
     /**
      * Problem 1: Given a non-negative integer represented as a non-empty array of digits, plus one to the integer.
@@ -1561,7 +1563,7 @@ public class Arrays {
      * successfully without causing a double booking. Otherwise, return false and do not add the event to the calendar.
      * Your class will be called like this: MyCalendar cal = new MyCalendar(); MyCalendar.book(start, end)
      *
-     * Solution: use TreeMap. TreeMap internally has RedBlack tree ds. Evry time get the floorKey and compare its
+     * Solution: use TreeMap. TreeMap internally has RedBlack tree ds. Every time get the floorKey and compare its
      * endTime with start AND then get ceilingKey and compare its startTime with end.
      * With n inputs, worst time can be O(nlgn). Getting floorKey, ceilingKey and put has O(lgn) time complexity.
      */
@@ -1628,6 +1630,814 @@ public class Arrays {
         }
         return res;
     }
+
+    /**
+     * Problem 53: Find all possible combinations of k numbers that add up to a number n, given that only numbers
+     * from 1 to 9 can be used and each combination should be a unique set of numbers.
+     *
+     * Solution: Backtracking. Generate combinations/subsets
+     */
+    public List<List<Integer>> combinationSum3(int k, int n) {
+        List<List<Integer>> result = new ArrayList<>();
+        combinationSum3Helper(result, new ArrayList<>(), k, 1, n);
+        return result;
+    }
+
+    private void combinationSum3Helper(List<List<Integer>> result, List<Integer> comb, int k, int start, int n) {
+        if (comb.size() == k && n == 0) {
+            List<Integer> li = new ArrayList<>(comb);
+            result.add(li);
+        }
+
+        for (int i = start; i <= 9; i++) {
+            comb.add(i);
+            combinationSum3Helper(result, comb, k, i + 1, n - i);
+            comb.remove(comb.size() - 1);
+        }
+    }
+
+    /**
+     * Problem 54: Given a set of candidate numbers (C) (without duplicates) and a target number (T), find all unique
+     * combinations in C where the candidate numbers sums to T.
+     * The same repeated number may be chosen from C unlimited number of times.
+     *
+     * Solution: Generate combinations, Iterate with the same element for next time as well.
+     */
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        List<List<Integer>> result = new ArrayList<>();
+        combinationSumHelper(result, new ArrayList<>(), candidates, 0, target);
+        return result;
+    }
+
+    private void combinationSumHelper(List<List<Integer>> result, List<Integer> comb, int[] candidates, int start, int
+            target) {
+        if (target == 0) {
+            List<Integer> li = new ArrayList<>(comb);
+            result.add(li);
+        }
+
+        for (int i = start; i < candidates.length; i++) {
+            if (target < 0) {
+                return;
+            }
+
+            comb.add(candidates[i]);
+            combinationSumHelper(result, comb, candidates, i, target - candidates[i]);
+            comb.remove(comb.size() - 1);
+        }
+    }
+
+    /**
+     * Problem 55: Given a collection of candidate numbers (C) and a target number (T), find all unique combinations
+     * in C where the candidate numbers sums to T.
+     * Each number in C may only be used once in the combination.
+     *
+     * Solution: Generate all combinations. Run for next element with every iteration. Skip if this is not the first
+     * element of the iteration and is equal to the previous one.
+     */
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        List<List<Integer>> result = new ArrayList<>();
+        java.util.Arrays.sort(candidates);
+        combinationSum2Helper(result, new ArrayList<>(), candidates, 0, target);
+        return result;
+    }
+
+    private void combinationSum2Helper(List<List<Integer>> result, List<Integer> comb, int[] candidates, int start, int
+            target) {
+        if (target == 0) {
+            List<Integer> li = new ArrayList<>(comb);
+            result.add(li);
+        }
+        if (target < 0) {
+            return;
+        }
+
+        for (int i = start; i < candidates.length; i++) {
+            if (i > start && candidates[i] == candidates[i - 1]) {
+                continue;
+            }
+            comb.add(candidates[i]);
+            combinationSum2Helper(result, comb, candidates, i + 1, target - candidates[i]);
+            comb.remove(comb.size() - 1);
+        }
+    }
+
+    /**
+     * Problem 56: Given two integer arrays A and B, return the maximum length of an subarray that appears in both
+     * arrays.
+     *
+     * Solution: Similar to LCS.
+     */
+    public int findLength(int[] A, int[] B) {
+        int maxLength = 0;
+        if (A == null || B == null) {
+            return 0;
+        }
+
+        int m = A.length;
+        int n = B.length;
+        int[][] lcs = new int[m][n];
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (A[i] == B[j]) {
+                    lcs[i][j] = 1;
+                    if (i > 0 && j > 0) {
+                        lcs[i][j] += lcs[i - 1][j - 1];
+                    }
+                }
+                maxLength = Math.max(maxLength, lcs[i][j]);
+            }
+        }
+        return maxLength;
+    }
+
+    /**
+     * Problem 57: Implement a MyCalendarTwo class to store your events. A new event can be added if adding the event
+     * will not cause a triple booking.
+     * Your class will have one method, book(int start, int end). Formally, this represents a booking on the half
+     * open interval [start, end), the range of real numbers x such that start <= x < end.
+     * A triple booking happens when three events have some non-empty intersection (ie., there is some time that is
+     * common to all 3 events.)
+     * For each call to the method MyCalendar.book, return true if the event can be added to the calendar
+     * successfully without causing a triple booking. Otherwise, return false and do not add the event to the calendar.
+     *
+     * Solution: Using treeMap. Make an entry for start and end both as a key and value of the map will be +1
+     * for start and -1 for end. For each input iterate over all the values of the map to get the count >= 3, now,
+     * there is need to subtract/add 1 from existing map of start and end respectively and return false.
+     */
+    Map<Integer, Integer> overlapMap = new TreeMap<>();
+    public boolean book2(int start, int end) {
+        overlapMap.put(start, overlapMap.getOrDefault(start, 0) + 1);
+        overlapMap.put(end, overlapMap.getOrDefault(end, 0) - 1);
+
+        int overlapCount = 0;
+        for (Integer value : overlapMap.values()) {
+            overlapCount += value;
+            if (overlapCount >= 3) {
+                overlapMap.put(start, overlapMap.get(start) - 1);
+                overlapMap.put(end, overlapMap.get(end) + 1);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Problem 58: Implement a MyCalendarThree class to store your events. A new event can always be added.
+     * Your class will have one method, book(int start, int end). Formally, this represents a booking on the half
+     * open interval [start, end), the range of real numbers x such that start <= x < end.
+     * A K-booking happens when K events have some non-empty intersection (ie., there is some time that is common to
+     * all K events.)
+     * For each call to the method MyCalendar.book, return an integer K representing the largest integer such that
+     * there exists a K-booking in the calendar.
+     *
+     * Solution: Similar to problem#57. but store maxCount with each sum to the value of the overlapMap.
+     */
+    Integer maxBooking = 0;
+    public int book3(int start, int end) {
+        overlapMap.put(start, overlapMap.getOrDefault(start, 0) + 1);
+        overlapMap.put(end, overlapMap.getOrDefault(end, 0) - 1);
+
+        Integer valueCount = 0;
+        for (Integer value : overlapMap.values()) {
+            valueCount += value;
+            maxBooking = Math.max(maxBooking, valueCount);
+        }
+
+        return maxBooking;
+    }
+
+    /**
+     * Problem 59: Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
+     * (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
+     * Find the minimum element. You may assume no duplicate exists in the array.
+     *
+     * Solution: Iterative version of binary search.
+     */
+    public int findMin(int[] nums) {
+        int start = 0;
+        int end = nums.length - 1;
+        while (start < end) {
+            if (nums[start] < nums[end]) {
+                return nums[start];
+            }
+
+            int mid = (start + end) / 2;
+            if (nums[mid] > nums[start]) {
+                start = mid + 1;
+            } else {
+                end = mid;
+            }
+        }
+
+        return nums[start];
+    }
+
+    /**
+     * Problem 60: Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
+     * (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
+     * You are given a target value to search. If found in the array return its index, otherwise return -1.
+     * You may assume no duplicate exists in the array.
+     *
+     * Solution: Find pivot(Max element). use problem#59 to find pivot.
+     * Use pivot to binary search in the subarray.
+     */
+    public int searchInRotatedSortedArray(int[] nums, int target) {
+        if (nums == null || nums.length == 0) {
+            return -1;
+        }
+        int pivot = findPivotInRotatedSortedArray(nums);
+        if (target >= nums[0]) {
+            return searchInRotatedSortedArrayHelper(nums, 0, pivot, target);
+        }
+        return searchInRotatedSortedArrayHelper(nums, pivot + 1, nums.length - 1, target);
+    }
+
+    private int searchInRotatedSortedArrayHelper(int[] nums, int low, int high, int target) {
+        if (low > high) {
+            return -1;
+        }
+
+        int mid = (low + high) / 2;
+        if (nums[mid] == target) {
+            return mid;
+        }
+
+        if (nums[mid] >= target) {
+            return searchInRotatedSortedArrayHelper(nums, low, mid - 1, target);
+        }
+        return searchInRotatedSortedArrayHelper(nums, mid + 1, high, target);
+    }
+
+    private int findPivotInRotatedSortedArray(int[] nums) {
+        int start = 0;
+        int end = nums.length - 1;
+
+        while (start < end) {
+            int mid = (start + end) / 2;
+            if (nums[mid] >  nums[mid + 1]) {
+                return mid;
+            }
+
+            if (nums[mid] > nums[start]) {
+                start = mid + 1;
+            } else if (nums[mid] < nums[start]){
+                end = mid;
+            } else {
+                start++;
+            }
+        }
+        return start;
+    }
+
+    /**
+     * Problem 61: Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
+     * (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
+     * Write a function to determine if a given target is in the array. The array may contain duplicates.
+     *
+     * Solution: Similar to problem#61 but finding pivot is similar to problem#62.
+     */
+    public boolean searchInRotatedSortedArrayWithDupes(int[] nums, int target) {
+        if (nums == null || nums.length == 0) {
+            return false;
+        }
+
+        int pivot = findPivotInRotatedSortedArrayWithDupes(nums);
+        if (nums[pivot] == target) {
+            return true;
+        }
+        if (nums[0] <= target) {
+            return searchInRotatedSortedArrayWithDupesHelper(nums, 0, pivot, target);
+        }
+        return searchInRotatedSortedArrayWithDupesHelper(nums, pivot + 1, nums.length - 1, target);
+    }
+
+    private boolean searchInRotatedSortedArrayWithDupesHelper(int[] nums, int low, int high, int target) {
+        if (low > high) {
+            return false;
+        }
+
+        int mid = (low + high) / 2;
+        if (nums[mid] == target) {
+            return true;
+        }
+
+        if (nums[mid] < target) {
+            return searchInRotatedSortedArrayWithDupesHelper(nums, mid + 1, high, target);
+        }
+        return searchInRotatedSortedArrayWithDupesHelper(nums, low, mid - 1, target);
+    }
+
+    private int findPivotInRotatedSortedArrayWithDupes(int[] nums) {
+        int start = 0;
+        int end = nums.length - 1;
+
+        while (start < end) {
+            int mid = (start + end) / 2;
+            if (nums[mid] > nums[mid + 1]) {
+                return mid;
+            }
+
+            if (nums[mid] > nums[start]) {
+                start = mid + 1;
+            } else if (nums[mid] < nums[start]) {
+                end = mid;
+            } else {
+                start++;
+            }
+        }
+        return start;
+    }
+
+    /**
+     * Problem 62: Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.(i.e
+     * ., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).Find the minimum element.
+     * The array may contain duplicates.
+     *
+     * Solution: Similar to problem#59 but skip the low value whenever mid == start
+     * This also works for the case where 0 rotation has happened. And array is sorted in ascending order.
+     */
+    public int findMin2(int[] nums) {
+        int start = 0;
+        int end = nums.length - 1;
+
+        while (start < end) {
+            if (nums[start] < nums[end]) {
+                return nums[start];
+            }
+            int mid = (start + end) / 2;
+
+            if (nums[mid] > nums[start]) {
+                start = mid + 1;
+            } else if (nums[mid] < nums[start]) {
+                end = mid;
+            } else {
+                start++;
+            }
+        }
+
+        return nums[start];
+    }
+
+    /**
+     * Problem 63: Generate all subsets with dupes.
+     */
+    public List<List<Integer>> subsetsWithDup(int[] nums) {
+        List<List<Integer>> res = new ArrayList<>();
+        if (nums == null) {
+            return res;
+        }
+
+        java.util.Arrays.sort(nums);
+        List<Integer> empty = new ArrayList<>();
+        res.add(empty);
+        subsetsWithDupHelper(nums, res, new ArrayList<>(), 0);
+        return res;
+    }
+
+    private void subsetsWithDupHelper(int[] nums, List<List<Integer>> res, List<Integer> comb, int start) {
+        for (int i = start; i < nums.length; i++) {
+            if (i > start && nums[i] == nums[i - 1]) {
+                continue;
+            }
+            comb.add(nums[i]);
+            List<Integer> li = new ArrayList<>(comb);
+            res.add(li);
+            subsetsWithDupHelper(nums, res, comb, i + 1);
+            comb.remove(comb.size() - 1);
+        }
+    }
+
+    /**
+     * Problem 64: Given a char array representing tasks CPU need to do. It contains capital letters A to Z where
+     * different letters represent different tasks. Tasks could be done without original order. Each task could be
+     * done in one interval. For each interval, CPU could finish one task or just be idle.
+     * However, there is a non-negative cooling interval n that means between two same tasks, there must be at least
+     * n intervals that CPU are doing different tasks or just be idle. You need to return the least number of
+     * intervals the CPU will take to finish all the given tasks.
+     *
+     * Solution: Number of empty slots will be cooling time * (maxValue of tasks - 1). Now reduce the number of slots
+     * by subtracting number of tasks other than maxValue task. If a task has count equal to maxValue then subtract
+     * count - 1 from idle slots(cooling time). Whenever selecting count of task take minimum between task count and
+     * current number of idle slots since it may be a case that there is no idle slot in that case we will simply
+     * execute the task and hence when idleSlots is equal to zero then equal to tasks length. Else time is idle slots
+     * + tasks length.
+     */
+    public int leastInterval(char[] tasks, int n) {
+        if (tasks == null) {
+            return 0;
+        }
+        if (n <= 0) {
+            return tasks.length;
+        }
+
+        int[] map = new int[26];
+        for (char task : tasks) {
+            map[task - 'A']++;
+        }
+
+        java.util.Arrays.sort(map);
+        int maxVal = map[25];
+        int idleSlots = n * (maxVal - 1);
+        for (int i = 24; i >= 0 && map[i] > 0; i--) {
+            int occupiedSlot = map[i];
+            if (map[i] == maxVal) {
+                occupiedSlot -= 1;
+            }
+            // Idle slots cannot be negative because of selecting minimum between taskCount and idleSlots.
+            idleSlots -= Math.min(occupiedSlot, idleSlots);
+        }
+
+        return idleSlots + tasks.length;
+    }
+
+    /**
+     * Problem 65: Given two integers n and k, you need to construct a list which contains n different positive
+     * integers ranging from 1 to n and obeys the following requirement:
+     * Suppose this list is [a1, a2, a3, ... , an], then the list [|a1 - a2|, |a2 - a3|, |a3 - a4|, ... , |an-1 -
+     * an|] has exactly k distinct integers.
+     * If there are multiple answers, print any of them.
+     *
+     * Solution: Initialize the result array with integers 1 to n.
+     * Since k <= n - 1, we add k to previous element on odd index and subtract k from previous element on even index.
+     * Every time we decrease k by 1.
+     * After this from 1 to k every integer will come with k distinct difference.
+     * For rest(when k <= 0) of the n - k values we will just copy the original value.
+     */
+    public int[] constructArray(int n, int k) {
+        int[] res = new int[n];
+        for (int i = 1; i <= n; i++) {
+            res[i - 1] = i;
+        }
+
+        for (int i = 1; i < n && k > 0; i++, k--) {
+            if (i % 2 != 0) {
+                res[i] = res[i - 1] + k;
+            } else {
+                res[i] = res[i - 1] - k;
+            }
+        }
+        return res;
+    }
+
+    /**
+     * Problem 66: Suppose you have N integers from 1 to N. We define a beautiful arrangement as an array that is
+     * constructed by these N numbers successfully if one of the following is true for the ith position (1 <= i <= N)
+     * in this array:
+     * The number at the ith position is divisible by i.
+     * z is divisible by the number at the ith position.
+     * Now given N, how many beautiful arrangements can you construct?
+     *
+     * Solution: Backtracking:
+     * Generate all permutations with below condition:-
+     * !visited[i - 1] && (pos % i == 0 || i % pos == 0)
+     */
+    int countArrangement = 0;
+    public int countArrangement(int N) {
+        boolean[] visited = new boolean[N];
+        countArrangementHelper(N, visited, 1);
+        return countArrangement;
+    }
+
+    private void countArrangementHelper(int N, boolean[] visited, int pos) {
+        if (pos > N) {
+            countArrangement++;
+        }
+
+        for (int i = 1; i <= N; i++) {
+            if (!visited[i - 1] && (pos % i == 0 || i % pos == 0)) {
+                visited[i - 1] = true;
+                countArrangementHelper(N, visited, pos + 1);
+                visited[i - 1] = false;
+            }
+        }
+    }
+
+    /**
+     * Problem 67: Given a triangle, find the minimum path sum from top to bottom. Each step you may move to adjacent
+     * numbers on the row below.
+     *
+     * Solution: DP solution. Go bottom to up and store sum of current value and the minimum of its next row adjacent
+     * value.
+     */
+    public int minimumTotal(List<List<Integer>> triangle) {
+        int[] A = new int[triangle.size() + 1];
+
+        for (int i = triangle.size() - 1; i >= 0; i--) {
+            for (int j = 0; j < triangle.get(i).size(); j++) {
+                A[j] = Math.min(A[j], A[j + 1]) + triangle.get(i).get(j);
+            }
+        }
+
+        return A[0];
+    }
+
+    /**
+     * Problem 68: Given an array with n objects colored red, white or blue, sort them so that objects of the same
+     * color are adjacent, with the colors in the order red, white and blue.
+     * Here, we will use the integers 0, 1, and 2 to represent the color red, white, and blue respectively.
+     *
+     * Solution: Maintain three pointers. low, mid, high. If 0 swap mid and low and increment low and mid. If 1 just
+     * increment mid and if 2 then swap high and mid and decrement high. Do it else mid <= high. In O(n) it can be done.
+     */
+    public void sortColors(int[] nums) {
+        if (nums == null) {
+            return;
+        }
+
+        int low = 0;
+        int mid = 0;
+        int high = nums.length - 1;
+        while (mid <= high) {
+            switch (nums[mid]) {
+                case 0: swap(nums, low, mid);
+                low++;
+                mid++;
+                break;
+
+                case 1: mid++;
+                break;
+
+                case 2: swap(nums, mid, high);
+                high--;
+            }
+        }
+    }
+
+    /**
+     * Problem 69: Given an unsorted array of integers, find the length of longest increasing subsequence.
+     * For example,
+     * Given [10, 9, 2, 5, 3, 7, 101, 18], The longest increasing subsequence is [2, 3, 7, 101], therefore the length
+     * is 4. Note that there may be more than one LIS combination, it is only necessary for you to return the length.
+     * Your algorithm should run in O(n2) complexity.
+     *
+     * Solution: Using dynamic programming to solve the problem since there is an overlap in the sub-solutions. For
+     * calculating longest increasing subsequence till i. We will see maximum increasing subsequence till i-1 and
+     * then add 1 and see the longer sequence now. Since we are seeing longest sequence from 0 to i-1 for each ith
+     * element, there is an overlap and hence we can apply dynamic programming here.
+     * Runtime Complexity: O(n^2)
+     * Space complexity: O(n)
+     */
+    public int lengthOfLISUsingDP(int[] nums) {
+        int maxAns = 0;
+        if (nums == null) {
+            return maxAns;
+        }
+
+        int[] dp = new int[nums.length];
+        dp[0] = 1;
+        for (int i = 1; i < nums.length; i++) {
+            int maxVal = 0;
+            for (int j = 0; j < i; j++) {
+                if (nums[i] > nums[j]) {
+                    maxVal = Math.max(maxVal, dp[j]);
+                }
+            }
+            dp[i] = maxVal + 1;
+            maxAns = Math.max(maxAns, dp[i]);
+        }
+        return maxAns;
+    }
+
+    /**
+     * Solution 2: Using dynamic programming and java built-in binarySearch to solve the problem. If the number is
+     * not found in the array then it returns the initial point(place it would be there in the array, if present).
+     * Note: This solution only works if we need to find out the longest increasing sequence length.
+     * Runtime Complexity: O(nlgn)
+     * Space complexity: O(n)
+     */
+    public int lengthOfLISUsingDPAndBinarySearch(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+
+        int len = 0;
+        int[] dp = new int[nums.length];
+        for (int num : nums) {
+            int i = Arrays.binarySearch(dp, 0, len, num);
+            if (i < 0) {
+                i = -1 * (i + 1);
+            }
+
+            dp[i] = num;
+            if (i == len) {
+                len++;
+            }
+        }
+
+        return len;
+    }
+
+    /**
+     * Problem 70: Given an unsorted array return whether an increasing subsequence of length 3 exists or not in the
+     * array.
+     *
+     * Solution: Keep minimum and second minimum value. As soon as third minimum will come it is a triplet.
+     * Run time: O(n)
+     */
+    public boolean increasingTriplet(int[] nums) {
+        if (nums == null) {
+            return false;
+        }
+
+        int first = Integer.MAX_VALUE;
+        int second = Integer.MAX_VALUE;
+        for (int num : nums) {
+            if (num <= first) {
+                first = num;
+            } else if (num <= second) {
+                second = num;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Problem 71: You are given n pairs of numbers. In every pair, the first number is always smaller than the
+     * second number. Now, we define a pair (c, d) can follow another pair (a, b) if and only if b < c. Chain of
+     * pairs can be formed in this fashion. Given a set of pairs, find the length longest chain which can be formed.
+     * You needn't use up all the given pairs. You can select pairs in any order.
+     *
+     * Solution: Greedy Approach. Sort the array by second co-ordinate. Now compare last second-cordinate with
+     * current first element. If true then increment the count.
+     */
+    public int findLongestChain(int[][] pairs) {
+        if (pairs == null) {
+            return 0;
+        }
+
+        int count = 0;
+        Arrays.sort(pairs, Comparator.comparingInt(pair -> pair[1]));
+        int curr = Integer.MIN_VALUE;
+        for (int[] pair : pairs) {
+            if (curr < pair[0]) {
+                curr = pair[1];
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Problem 72: Given preorder and inorder traversal of a tree, construct the binary tree.
+     * Note: You may assume that duplicates do not exist in the tree.
+     *
+     * Solution: Partition the inorder array for an element of preorder array. Do this recursively for each element
+     * of pre-order array.
+     */
+    int preIndex = 0;
+    public Tree.TreeNode buildTreePreOrderAndInorder(int[] preorder, int[] inorder) {
+        if (preorder == null || inorder == null) {
+            return null;
+        }
+
+        if (preorder.length != inorder.length) {
+            return null;
+        }
+
+        return buildTreePreOrderAndInorderHelper(preorder, inorder, 0, preorder.length - 1);
+    }
+
+    private Tree.TreeNode buildTreePreOrderAndInorderHelper(int[] preorder, int[] inorder, int start, int end) {
+        if (start > end) {
+            return null;
+        }
+
+        Tree.TreeNode root = new Tree.TreeNode(preorder[preIndex++]);
+        if (start == end) {
+            return root;
+        }
+
+        int rootInorderIndex = searchInorder(inorder, root.val, start, end);
+
+        root.left = buildTreePreOrderAndInorderHelper(preorder, inorder, start, rootInorderIndex - 1);
+        root.right = buildTreePreOrderAndInorderHelper(preorder, inorder, rootInorderIndex + 1, end);
+
+        return root;
+    }
+
+    private int searchInorder(int[] inorder, int value, int start, int end) {
+        for (int i = start; i <= end; i++) {
+            if (value == inorder[i]) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Problem 73: Given inorder and postorder traversal of a tree, construct the binary tree.
+     * Note: You may assume that duplicates do not exist in the tree.
+     *
+     * Solution: Same as in problem 72 but consider right hild first and traverse postorder from last index.
+     */
+    int postOrderIndex = 0;
+    public Tree.TreeNode buildTreePostOrderAndInorder(int[] postOrder, int[] inorder) {
+        if (postOrder == null || inorder == null) {
+            return null;
+        }
+
+        if (postOrder.length != inorder.length) {
+            return null;
+        }
+
+        postOrderIndex = postOrder.length - 1;
+        return buildTreePostOrderAndInorderHelper(postOrder, inorder, 0, postOrderIndex);
+    }
+
+    private Tree.TreeNode buildTreePostOrderAndInorderHelper(int[] postOrder, int[] inorder, int start, int end) {
+        if (start > end) {
+            return null;
+        }
+
+        Tree.TreeNode root = new Tree.TreeNode(postOrder[postOrderIndex--]);
+        if (start == end) {
+            return root;
+        }
+
+        int postOrderIndex = searchInorder(inorder, root.val, start, end);
+        root.right = buildTreePostOrderAndInorderHelper(postOrder, inorder, postOrderIndex + 1, end);
+        root.left = buildTreePostOrderAndInorderHelper(postOrder, inorder, start, postOrderIndex - 1);
+
+        return root;
+    }
+
+    /**
+     * Problem 74: Given an array of integers and an integer k, you need to find the total number of continuous
+     * subarrays whose sum equals to k.
+     *
+     * Solution: The idea behind this approach is as follows: If the cumulative sum(repreesnted by sum[i] for sum
+     * upto ith​​ index) upto two indices is the same, the sum of the elements lying in between those indices is zero.
+     * Extending the same thought further, if the cumulative sum upto two indices, say i and j is at a difference of k
+     * i.e. if sum[i] - sum[j] = ksum[i]−sum[j]=k, the sum of elements lying between indices i and j is k. Based on
+     * these thoughts, we make use of a hashmap map which is used to store the cumulative sum upto all the indices
+     * possible along with the number of times the same sum occurs. We store the data in the form: (sum_i, no. of
+     * occurences of sum_i. We traverse over the array nums and keep on finding the cumulative sum. Every time we
+     * encounter a new sum, we make a new entry in the hashmap corresponding to that sum. If the same sum occurs
+     * again, we increment the count corresponding to that sum in the hashmap. Further, for every sum encountered, we
+     * also determine the number of times the sum sum-k has occured already, since it will determine the number
+     * of times a subarray with sum k has occured upto the current index. We increment the count by the same amount.
+     * After the complete array has been traversed, the countcount gives the required result.
+     */
+    public int subarraySum(int[] nums, int k) {
+        int count = 0;
+        int sum = 0;
+        if (nums == null) {
+            return count;
+        }
+
+        Map<Integer, Integer> cumSumMap = new HashMap<>();
+        cumSumMap.put(0, 1);
+        for (int i = 0; i < nums.length; i++) {
+            sum += nums[i];
+            if (cumSumMap.containsKey(sum - k)) {
+                count += cumSumMap.get(sum - k);
+            }
+            cumSumMap.put(sum, cumSumMap.getOrDefault(sum, 0) + 1);
+        }
+
+        return count;
+    }
+
+    /**
+     * Problem 75: Given a list of non-negative numbers and a target integer k, write a function to check if the
+     * array has a continuous subarray of size at least 2 that sums up to the multiple of k, that is, sums up to n*k
+     * where n is also an integer.
+     *
+     * Solution: a+(n*x))%x is same as (a%x)
+     * e.g. in case of the array [23,2,6,4,7] the running sum is [23,25,31,35,42] and the remainders are [5,1,1,5,
+     * ]. We got remainder 5 at index 0 and at index 3. That means, in between these two indexes we must have added a
+     * number which is multiple of the k.
+     */
+    public boolean checkSubarraySum(int[] nums, int k) {
+        if (nums == null) {
+            return false;
+        }
+
+        int modSum = 0;
+        Map<Integer, Integer> cumSumMap = new HashMap<>();
+        cumSumMap.put(0, -1);
+        for (int i = 0; i < nums.length; i++) {
+            modSum += nums[i];
+            if (k != 0) {
+                modSum %= k;
+            }
+            if (cumSumMap.containsKey(modSum)) {
+                if (i - cumSumMap.get(modSum) > 1) {
+                    return true;
+                }
+            } else {
+                cumSumMap.put(modSum, i);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Problem 76:
+     */
 }
 
 

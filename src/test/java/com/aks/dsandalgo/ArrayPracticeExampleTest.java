@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by singhami on 6/8/2017.
  */
-public class ArraysExampleTest {
+public class ArrayPracticeExampleTest {
 
     private ArraysExample arraysExample = new ArraysExample();
 
