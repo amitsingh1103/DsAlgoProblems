@@ -260,4 +260,22 @@ public class ArrayPracticeTest {
         int[] arr = new int[]{0,0,0};
         System.out.println(arrayPractice.checkSubarraySum(arr, 0));
     }
+
+    @Test
+    public void maxArea() {
+        int[] arr = new int[]{2,3,4,5,18,17,6};
+        System.out.println(arrayPractice.maxArea(arr));
+    }
+
+    @Test
+    public void trapRainWaterMatrix() {
+        int[][] arr = new int[][]{{12,13,1,12},{13,4,13,12},{13,8,10,12},{12,13,12,12},{13,13,13,13}};
+        System.out.println(arrayPractice.trapRainWaterMatrix(arr));
+    }
+
+    @Test
+    public void maximumSwap() {
+        int num = 9937;
+        System.out.println(arrayPractice.maximumSwap(num));
+    }
 }

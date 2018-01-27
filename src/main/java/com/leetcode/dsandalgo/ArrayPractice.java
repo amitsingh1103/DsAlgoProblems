@@ -2436,8 +2436,209 @@ public class ArrayPractice {
     }
 
     /**
-     * Problem 76:
+     * Problem 76: Given n non-negative integers a1, a2, ..., an, where each represents a point at coordinate (i, ai)
+     * . n vertical lines are drawn such that the two endpoints of line i is at (i, ai) and (i, 0). Find two lines,
+     * which together with x-axis forms a container, such that the container contains the most water.
+     *
+     * Solution: Maintain 2 pointers, low and high. Calculate area and store the maxArea everyTime. shift low if
+     * height[low] <= height[high] since it means with every value of high(if we shift high left) the area will
+     * remain equal or lesser than what wee had computed with height[low], so there is no need to calculate these areas
+     * and we can skip these. In the same way, shift high if height[high] < height[low].
      */
+    public int maxArea(int[] height) {
+        int maxArea = 0;
+        if (height == null || height.length < 2) {
+            return maxArea;
+        }
+
+        int low = 0;
+        int high = height.length - 1;
+        while (low < high) {
+            int currArea = (high - low) * Math.min(height[low], height[high]);
+            maxArea = Math.max(maxArea, currArea);
+            if (height[low] <= height[high]) {
+                low++;
+            } else {
+                high--;
+            }
+        }
+        return maxArea;
+    }
+
+    /**
+     * Problem 77: Given n non-negative integers representing an elevation map where the width of each bar is 1,
+     * compute how much water it is able to trap after raining.
+     *
+     * Solution: Get the max from left inclusive the element. Likewise get the max from right inclusive the element.
+     * Then add minimum of difference of left and the element AND right and the element.
+     */
+    public int trap(int[] height) {
+        int area = 0;
+        if (height == null || height.length < 2) {
+            return area;
+        }
+
+        int[] left = new int[height.length];
+        int maxLeft = 0;
+        for (int i = 0; i < left.length; i++) {
+            maxLeft = Math.max(maxLeft, height[i]);
+            left[i] = maxLeft;
+        }
+
+        int[] right = new int[height.length];
+        int maxRight = 0;
+        for (int i = right.length - 1; i >= 0; i--) {
+            maxRight = Math.max(maxRight, height[i]);
+            right[i] = maxRight;
+        }
+
+        for (int i = 0; i < height.length; i++) {
+            area += Math.min(left[i] - height[i], right[i] - height[i]);
+        }
+
+        return area;
+    }
+
+    /**
+     * Problem 78: Given an m x n matrix of positive integers representing the height of each unit cell in a 2D
+     * elevation map, compute the volume of water it is able to trap after raining.
+     *
+     * Solution: From the borders, pick the shortest cell visited and check its neighbors.
+     * If the neighbor is shorter, collect the water it can trap and update its height.
+     * Add all its neighbors to the queue.
+     */
+    private class Cell {
+
+        int row;
+        int col;
+        int height;
+
+        public Cell(int row, int col, int height) {
+            this.row = row;
+            this.col = col;
+            this.height = height;
+        }
+    }
+
+    public int trapRainWaterMatrix(int[][] heightMap) {
+        int res = 0;
+        if (heightMap == null || heightMap.length < 1 || heightMap[0].length < 1) {
+            return res;
+        }
+
+        PriorityQueue<Cell> queue = new PriorityQueue<>(1, Comparator.comparing(c -> c.height));
+        int m = heightMap.length;
+        int n = heightMap[0].length;
+        boolean[][] visited = new boolean[m][n];
+        for (int i = 0; i < m; i++) {
+            visited[i][0] = true;
+            visited[i][n - 1] = true;
+            queue.offer(new Cell(i, 0, heightMap[i][0]));
+            queue.offer(new Cell(i, n - 1, heightMap[i][n - 1]));
+        }
+
+        for (int i = 0; i < n; i++) {
+            visited[0][i] = true;
+            visited[m - 1][i] = true;
+            queue.offer(new Cell(0, i, heightMap[0][i]));
+            queue.offer(new Cell(m - 1, i, heightMap[m - 1][i]));
+        }
+
+        int[][] neighbours = new int[][]{{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        while (!queue.isEmpty()) {
+            Cell cell = queue.poll();
+            for (int[] neighbour : neighbours) {
+                int row = cell.row + neighbour[0];
+                int col = cell.col + neighbour[1];
+                if (row >= 0 && row < m && col >= 0 && col < n && !visited[row][col]) {
+                    res += Math.max(0, cell.height - heightMap[row][col]);
+                    visited[row][col] = true;
+                    queue.offer(new Cell(row, col, Math.max(cell.height, heightMap[row][col])));
+                }
+            }
+        }
+
+        return res;
+    }
+
+    /**
+     * Problem 79: Given an integer array of size n, find all elements that appear more than ⌊ n/3 ⌋ times. The
+     * algorithm should run in linear time and in O(1) space.
+     *
+     * Solution: Similar to Boyer Moore Majority Voting Algorithm. There can be atmost 2 elements which has count n/3
+     * times in the array so we can keep two candidate for maj_element.
+     */
+    public List<Integer> majorityElement2(int[] nums) {
+        List<Integer> res = new ArrayList<>();
+        if (nums == null || nums.length == 0) {
+            return res;
+        }
+
+        int candidate1 = nums[0];
+        int candidate2 = nums[0];
+        int count1 = 0;
+        int count2 = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] == candidate1) {
+                count1++;
+            } else if (nums[i] == candidate2) {
+                count2++;
+            } else if (count1 == 0) {
+                candidate1 = nums[i];
+                count1++;
+            } else if (count2 == 0) {
+                candidate2 = nums[i];
+                count2++;
+            } else {
+                count1--;
+                count2--;
+            }
+        }
+
+        count1 = 0;
+        count2 = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] == candidate1) {
+                count1++;
+            }
+            if (nums[i] == candidate2) {
+                count2++;
+            }
+        }
+
+        if (count1 > nums.length / 3) {
+            res.add(candidate1);
+        }
+        if (count2 > nums.length / 3) {
+            res.add(candidate2);
+        }
+
+        return res;
+    }
+
+    /**
+     * Problem 80:
+     */
+    public int maximumSwap(int num) {
+        int[] digits = Integer.toString(num).chars().map(c -> c - '0').toArray();
+
+        int maxNum = num;
+        for (int i = 0; i < digits.length - 1; i++) {
+            maxNum = Math.max(maxNum, swapAndGetInt(digits, i, i + 1));
+        }
+        return maxNum;
+    }
+
+    private int swapAndGetInt(int[] digits, int first, int second) {
+        int[] tempDigits = Arrays.copyOf(digits, digits.length);
+        int temp = tempDigits[first];
+        tempDigits[first] = tempDigits[second];
+        tempDigits[second] = temp;
+
+        StringBuilder stringBuilder = new StringBuilder();
+        Arrays.stream(tempDigits).forEach(digit -> stringBuilder.append(String.valueOf(digit)));
+        return Integer.parseInt(stringBuilder.toString());
+    }
 }
 
 
