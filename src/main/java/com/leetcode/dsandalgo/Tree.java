@@ -588,4 +588,110 @@ public class Tree {
         }
         return Math.max(lHeight, rHeight) + 1;
     }
+
+    /**
+     * Problem 19: Given a binary tree, return the tilt of the whole tree.
+     * The tilt of a tree node is defined as the absolute difference between the sum of all left subtree node values
+     * and the sum of all right subtree node values. Null node has tilt 0.
+     * The tilt of the whole tree is defined as the sum of all nodes' tilt.
+     *
+     * Solution: Since we need to evaluate tilt of a node once its left right subtree have been evaluated, so we need
+     * post order traversal.
+     */
+    int totalTilt = 0;
+    public int findTilt(TreeNode root) {
+        findTiltHelper(root);
+        return totalTilt;
+    }
+
+    private int findTiltHelper(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+
+
+        int leftTreeValue = findTiltHelper(root.left);
+        int rightTreeValue = findTiltHelper(root.right);
+
+        totalTilt += Math.abs(leftTreeValue - rightTreeValue);
+        return root.val + leftTreeValue + rightTreeValue;
+    }
+
+    /**
+     * problem 20: Given a complete binary tree, count the number of nodes.
+     *
+     * Solution:
+     */
+    public int countNodes(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+
+        int left = getLeftHeight(root);
+        int right = getRightHeight(root);
+
+        if (left == right) {
+            return (2 << left) - 1;
+        }
+        return countNodes(root.left) + countNodes(root.right) + 1;
+    }
+
+    private int getRightHeight(TreeNode root) {
+        int rHeight = 0;
+        while (root != null) {
+            rHeight++;
+            root = root.right;
+        }
+        return rHeight;
+    }
+
+    private int getLeftHeight(TreeNode root) {
+        int lHeight = 0;
+        while (root != null) {
+            lHeight++;
+            root = root.left;
+        }
+
+        return lHeight;
+    }
+
+    /**
+     * Problem 21:
+     */
+    public TreeNode mergeTrees(TreeNode t1, TreeNode t2) {
+        if (t1 == null) {
+            return t2;
+        }
+        if (t2 == null) {
+            return t1;
+        }
+
+        t1.val += t2.val;
+        t1.left = mergeTrees(t1.left, t2.left);
+        t2.right = mergeTrees(t1.right, t2.right);
+
+        return t1;
+    }
+
+    /**
+     * Problem 22:
+     */
+    public TreeNode sortedArrayToBST(int[] nums) {
+        if (nums == null) {
+            return null;
+        }
+        return sortedArrayToBSTHelper(nums, 0, nums.length - 1);
+    }
+
+    private TreeNode sortedArrayToBSTHelper(int[] nums, int start, int end) {
+        if (start >= end) {
+            return null;
+        }
+
+        int mid = (start + end) / 2;
+        TreeNode root = new TreeNode(nums[mid]);
+        root.left = sortedArrayToBSTHelper(nums, start, mid - 1);
+        root.right = sortedArrayToBSTHelper(nums, mid + 1, end);
+        return root;
+    }
 }

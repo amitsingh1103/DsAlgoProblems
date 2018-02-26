@@ -15,6 +15,27 @@ public class LinkedList {
     }
 
     /**
+     * Problem 6: Get middle node
+     *
+     * Solution: Two pointers. One fast: fast.next.next and another slow: slow.next
+     */
+    public static int getMiddleNode(ListNode head) {
+        if (head == null) {
+            return -1;
+        }
+
+        ListNode slow = head;
+        ListNode fast = head;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        return slow.val;
+
+    }
+
+    /**
      * Problem 5: Remove all elements from a linked list of integers that have value val.
      *
      * Solution: Logic similar to remove duplicates.
